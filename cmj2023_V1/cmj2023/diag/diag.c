@@ -51,6 +51,14 @@ void EcritBasique(char chaine){
         ", chaine);
     fclose("teste.js");
 }
+            
+//fonction détection de la postion malus et bonnus : 
+void MalusBonnus(char FEN,int* mJ,int* mR,int* bJ,int* bR){
+    int i; 
+    for (i=0; i<strlen(FEN); i++){
+        if(FEN[i] = )
+    }
+}
 
 void EcritModification(char FENin){
     char writing[1653] = analyse(FENin);
