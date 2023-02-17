@@ -15,83 +15,81 @@ Correspondant à des tours de    1 ; 2 ; 3 ; 4 ; 5 de hauteur ;
 #include <stdlib.h>
 #include <string.h>
 
-void chaineFEN();
-void EcritModification();
-void analyse(char chaine);
-void EcritBasique(char chaine);
+char* chaineFEN();
+char analyse(char* chaine, int mJ,int mR,int bJ,int bR);
 void MalusBonnusModifica(char* chaine,int* mJ,int* mR,int* bJ,int* bR);
 
+int main(){
+    char* FEN = chaineFEN();
+    int mJ=0, mR=0, bJ=0,bR=0;
+    char* include = (char*) malloc(strlen(FEN) + 1);
+    MalusBonnusModifica(FEN, &mJ, &mR, &bJ, &bR);
+    strcpy(include, FEN);
 
+    FILE *PremierEcrit = fopen("teste.js", "w+");
+    fprintf(PremierEcrit, "traiterJson({\n\"trait\":2,\n\"numDiag\":2,\n\"notes\": \"Une position à nombre de pièces réduit. Ici, pour gagner, les rouges jouent 4->0. Pour ne pas faire apparaître de pions évolution, il suffit de les affecter par paires bonus/malus aux mêmes colonnes\",\n\"fen\": \"%s\",\n\"bonusJ\":%d,\n\"malusJ\":%d,\n\"bonusR\":%d,\n\"malusR\":%d,\n", include,mJ, mR, bJ,bR);
+    fclose(PremierEcrit);
 
-void main{
-    char FEN[100] = chaineFEN();
-    EcritBasique(FEN);
-    EcritModification(FEN);
+    FILE *DesiemeEcrit = fopen("teste.js", "a+");
+    fprintf(DesiemeEcrit, "%s", analyse(FEN,mJ, mR, bJ,bR));
+    fclose(DesiemeEcrit);
+
+    free(include);
+    return 0;
 }
 
-char chaineFEN(){
-    char chaine[100];
+/* 
+Nom de fonction : chaineFEN
+Principe de fonctionnement : Récupère la chaine FEM 
+Returne : la chaine FEN
+*/
+char* chaineFEN(){
+    static char chaine[100];
     printf("Entrez une chaine de caractères : \n");
-    scanf("%s", chaine);
+    fgets(chaine, 100, stdin);
+    getchar();
     printf("La chaine est : %s\n" , chaine);
     return chaine;
-    }
-
-void EcritBasique(char* chaine){
-    int mJ, mR, bJ,bR;
-    MalusBonnusModifica(chaine,mJ, mR, bJ,bR)
-    FILE *fic = fopen("teste.js", "w+");
-    fprintf("teste.js", "traiterJson({\n
-        \"trait\":2,\n
-        \"numDiag\":2,\n
-        \"notes\": \"Une position à nombre de pièces réduit. Ici, pour gagner, les rouges jouent 4->0. Pour ne pas faire apparaître de pions évolution, il suffit de les affecter par paires bonus/malus aux mêmes colonnes\",\n
-        \"fen\": \"%s\",\n
-        \"bonusJ\":%d,\n
-        \"malusJ\":%d,\n
-        \"bonusR\":%d,\n
-        \"malusR\":%d,\n
-        ", chaine,mJ, mR, bJ,bR);
-    fclose("teste.js");
 }
-            
-//fonction détection de la postion malus et bonnus et une modification : 
+
+/* 
+Nom de fonction : MalusBonnusModifica
+Principe de fonctionnement : Passe en revue toute les postitions jusqu'a trouvé les bonus / maluse de chaque couleur
+Returne : la chaine FEN modiffier : sans les indications bonus / maluse ; ainsi que les positions de chacun d'entre eu 
+*/
+
 void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR){
     int i, j; 
     for (i=0; i<strlen(FEN); i++){
-        if(FEN[i] = 'B' || FEN[i-1] = 'u'|| FEN[i-1] = 'd'|| FEN[i-1] = 't'|| FEN[i-1] = 'q'|| FEN[i-1] = 'c'|| FEN[i-1] = 'U'|| FEN[i-1] = 'D'|| FEN[i-1] = 'T'|| FEN[i-1] = 'Q'|| FEN[i-1] = 'C'){
-           &bR = i-1;
+        if(FEN[i] == 'B' || FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C'){
+            bR = i-1;
            for(j=i;j<(strlen(FEN));j++){
                 FEN[i]=FEN[i+1];
             }} //Dans le cas où 1 seul lettre de bonus rouge
-        if(FEN[i] = 'M' || FEN[i-1] = 'u'|| FEN[i-1] = 'd'|| FEN[i-1] = 't'|| FEN[i-1] = 'q'|| FEN[i-1] = 'c'|| FEN[i-1] = 'U'|| FEN[i-1] = 'D'|| FEN[i-1] = 'T'|| FEN[i-1] = 'Q'|| FEN[i-1] = 'C'){
-            &mR = i-1;
+        if(FEN[i] == 'M' || FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C'){
+            mR = i-1;
             for(j=i;j<(strlen(FEN));j++){
                 FEN[i]=FEN[i+1];
             }} //Dans le cas où 1 seul lettre de malus rouge
-        if(FEN[i] = 'b' || FEN[i-1] = 'u'|| FEN[i-1] = 'd'|| FEN[i-1] = 't'|| FEN[i-1] = 'q'|| FEN[i-1] = 'c'|| FEN[i-1] = 'U'|| FEN[i-1] = 'D'|| FEN[i-1] = 'T'|| FEN[i-1] = 'Q'|| FEN[i-1] = 'C'){
-            &bR = i-1;
+        if(FEN[i] == 'b' || FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C'){
+            bR = i-1;
             for(j=i;j<(strlen(FEN));j++){
                 FEN[i]=FEN[i+1];
             }
         } //Dans le cas où 1 seul lettre de bonus jaune
-        if(FEN[i] = 'm' || FEN[i-1] = 'u'|| FEN[i-1] = 'd'|| FEN[i-1] = 't'|| FEN[i-1] = 'q'|| FEN[i-1] = 'c'|| FEN[i-1] = 'U'|| FEN[i-1] = 'D'|| FEN[i-1] = 'T'|| FEN[i-1] = 'Q'|| FEN[i-1] = 'C'){
-            &mR = i-1;
+        if(FEN[i] == 'm' || FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C'){
+            mR = i-1;
             for(j=i;j<(strlen(FEN));j++){
                 FEN[i]=FEN[i+1];
             }} //Dans le cas où 1 seul lettre de malus jaune
         }
 }
 
-void EcritModification(char *FENin){
-    char writing[1653] = analyse(&FENin);
-    FILE *fic = fopen("teste.js", "a+");
-    fprintf("teste.js", "%s", writing);
-    fclose("teste.js");
-}
-void analyse(char chaine, int mJ,int mR,int bJ,int bR){
+char analyse(char* chaine, int mJ,int mR,int bJ,int bR){
     int i=0, j, nb=0, check=0;
     int couleur=0, valeur=0;
-    char implementation[28] = "\a{\"nb\":0, \"couleur\":0},\n"
+    char implementation[28] = "\a{\"nb\":0, \"couleur\":0},\n";
+
     for(j=0;j<strlen(chaine);j++){
         if(chaine[j] == 'u') {
             couleur = 2; 
@@ -204,15 +202,15 @@ void analyse(char chaine, int mJ,int mR,int bJ,int bR){
             strcat(chaine,implementation);
         }
         
-        if((chaine[j] == '1' || chaine[j] == '2' || chaine[j] == '3' || chaine[j] == '4' || chaine[j] == '5' || chaine[j] == '6' || chaine[j] == '7' || chaine[j] == '8' || chaine[j] == '9' || chaine[j] == '0' )&& check != 0){
-            if(chaine[j+1] == '1' || chaine[j+1] == '2' || chaine[j+1] == '3' || chaine[j+1] == '4' || chaine[j+1] == '5' || chaine[j+1] == '6' || chaine[j+1] == '7' || chaine[j+1] == '8' || chaine[j+1] == '9' || chaine[j+1] == '0'){
+        //Pour vérifier le nombre de case vide 
+        if((chaine[j] >= '1' && chaine[j] <= '9' )&& check != 0){
+            if(chaine[j] >= '1' && chaine[j] <= '9'){
                 check = 2; 
             }
             else{
                 check = 1;
             }
         }
-        
         
     }
     if (check == 2){
@@ -221,5 +219,6 @@ void analyse(char chaine, int mJ,int mR,int bJ,int bR){
 
     for(i;i<nb;i++) strcat(chaine,"\a{\"nb\":0, \"couleur\":0},\n");    //permet d'affichier toute les casses vides
     
-    strcat(chaine,"]\n });\n")
+    strcat(chaine,"]\n });\n");
+    return chaine;
 }
