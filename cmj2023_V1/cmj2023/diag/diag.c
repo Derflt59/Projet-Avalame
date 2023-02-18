@@ -64,23 +64,23 @@ void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
         if(FEN[i] == 'B' || FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C'){
             *bR = i-1;
            for(j=i;j<(strlen(FEN));j++){
-                FEN[i]=FEN[i+1];
+                FEN[j]=FEN[j+1];
             }} //Dans le cas où 1 seul lettre de bonus rouge
         if(FEN[i] == 'M' || FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C'){
             *mR = i-1;
             for(j=i;j<(strlen(FEN));j++){
-                FEN[i]=FEN[i+1];
+                FEN[j]=FEN[j+1];
             }} //Dans le cas où 1 seul lettre de malus rouge
         if(FEN[i] == 'b' || FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C'){
             *bR = i-1;
             for(j=i;j<(strlen(FEN));j++){
-                FEN[i]=FEN[i+1];
+                FEN[j]=FEN[j+1];
             }
         } //Dans le cas où 1 seul lettre de bonus jaune
         if(FEN[i] == 'm' || FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C'){
             *mR = i-1;
             for(j=i;j<(strlen(FEN));j++){
-                FEN[i]=FEN[i+1];
+                FEN[j]=FEN[j+1];
             }} //Dans le cas où 1 seul lettre de malus jaune
         }
     if (FEN[i] == 'r') *color = 2;
