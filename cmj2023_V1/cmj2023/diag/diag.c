@@ -88,7 +88,7 @@ void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
 }
 
 char analyse(char* FEM, int mJ,int mR,int bJ,int bR){
-    int i=0, j, nb=0, check=0;
+    int i=0, j, nb=0;
     int couleur=0, valeur=0;
     char implementation[28] = "\a{\"nb\":0, \"couleur\":0},\n";
     char envoi[2000];
@@ -206,19 +206,12 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR){
         }
         
         //Pour vérifier le nombre de case vide 
-        if((FEM[j] >= '1' && FEM[j] <= '9' )&& check != 0){
-            if(FEM[j] >= '1' && FEM[j] <= '9'){
-                check = 2; 
-            }
-            else{
-                check = 1;
-            }
+        if((FEM[j] >= '1' && FEM[j] <= '9' )){
+            nb = nb*10 + (FEM[j]-'0');
         }
         
     }
-    if (check == 2){
-        nb = (FEM[j-3]-'0') + (FEM[j-4]-'0') *10;
-    }
+
 
     for(i;i<nb;i++) strcat(envoi,"\a{\"nb\":0, \"couleur\":0},\n");    //permet d'affichier toute les casses vides
     
