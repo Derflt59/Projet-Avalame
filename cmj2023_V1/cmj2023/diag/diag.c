@@ -15,20 +15,22 @@ Correspondant à des tours de    1 ; 2 ; 3 ; 4 ; 5 de hauteur ;
 #include <stdlib.h>
 #include <string.h>
 
-char* chaineFEN();
+//char* chaineFEN();
 char analyse(char* chaine, int mJ,int mR,int bJ,int bR);
 void MalusBonnusModifica(char* chaine,int* mJ,int* mR,int* bJ,int* bR, int* color);
 
-int main(int Num, char **FEN){
+int main(int Num, char *FEN){
     int mJ=0, mR=0, bJ=0,bR=0,color=0;
     char* include = (char*) malloc(strlen(FEN) + 1);
     MalusBonnusModifica(FEN, &mJ, &mR, &bJ, &bR, &color);
     strcpy(include, FEN);
 
+    //traite la première partie (celle qui ne fait pas le détaille avec les collonnes)
     FILE *PremierEcrit = fopen("teste.js", "w+");
     fprintf(PremierEcrit, "traiterJson({\n\"trait\":%d,\n\"numDiag\":%d,\n\"notes\": \"Une position à nombre de pièces réduit. Ici, pour gagner, les rouges jouent 4->0. Pour ne pas faire apparaître de pions évolution, il suffit de les affecter par paires bonus/malus aux mêmes colonnes\",\n\"fen\": \"%s\",\n\"bonusJ\":%d,\n\"malusJ\":%d,\n\"bonusR\":%d,\n\"malusR\":%d,\n",color, Num, include,mJ, mR, bJ,bR);
     fclose(PremierEcrit);
 
+    //traite la 2e partie, celle qui traite uniquement des colones 
     FILE *DesiemeEcrit = fopen("teste.js", "a+");
     fprintf(DesiemeEcrit, "%s", analyse(FEN,mJ, mR, bJ,bR));
     fclose(DesiemeEcrit);
@@ -37,11 +39,10 @@ int main(int Num, char **FEN){
     return 0;
 }
 
-/* 
+/* Retiré car non néccésaire. 
 Nom de fonction : chaineFEN
 Principe de fonctionnement : Récupère la chaine FEM 
 Returne : la chaine FEN
-*/
 char* chaineFEN(){
     char chaine[100];
     printf("Entrez une chaine de caractères : \n");
@@ -50,6 +51,8 @@ char* chaineFEN(){
     printf("La chaine est : %s\n" , chaine);
     return chaine;
 }
+*/
+
 
 /* 
 Nom de fonction : MalusBonnusModifica
@@ -211,9 +214,9 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR){
         
     }
 
-
     for(i;i<nb;i++) strcat(envoi,"\a{\"nb\":0, \"couleur\":0},\n");    //permet d'affichier toute les casses vides
     
-    strcat(envoi,"]\n });\n");
-    return envoi;
+    strcat(envoi,"]\n });\n");                                          //Finalise le document
+
+    return *envoi;                                                       //renvoye la chaine de carachète qui permet de traduire le chaine fen
 }
