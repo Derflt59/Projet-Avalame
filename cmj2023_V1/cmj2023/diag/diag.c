@@ -61,8 +61,9 @@ Returne : la chaine FEN modiffier : sans les indications bonus / maluse ; ainsi 
 */
 
 void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
-    int i, j, IndBR=0, IndMR=0,IndBJ=0, IndMJ=0; 
-    for (i=0; i<strlen(FEN); i++){
+    int i=0, j, IndBR=0, IndMR=0,IndBJ=0, IndMJ=0; 
+    while (FEN[i]!='\0')
+    {
         if(FEN[i] == 'B' || FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C'){
             if(IndBR==0) {*bR = i-1; IndBR=1;} //prend uniquement le premier emplacement du bonnus rouge
             for(j=i;j<(strlen(FEN));j++){
@@ -93,6 +94,7 @@ void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
     }
     if (FEN[i] == 'r') *color = 2;
     if (FEN[i] == 'j') *color = 1;
+    i++;
 }
 
 char analyse(char* FEM, int mJ,int mR,int bJ,int bR){
