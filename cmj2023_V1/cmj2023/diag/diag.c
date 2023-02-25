@@ -19,15 +19,14 @@ char* chaineFEN();
 char analyse(char* chaine, int mJ,int mR,int bJ,int bR);
 void MalusBonnusModifica(char* chaine,int* mJ,int* mR,int* bJ,int* bR, int* color);
 
-int main(){
-    char* FEN = chaineFEN();
+int main(int Num, char **FEN){
     int mJ=0, mR=0, bJ=0,bR=0,color=0;
     char* include = (char*) malloc(strlen(FEN) + 1);
     MalusBonnusModifica(FEN, &mJ, &mR, &bJ, &bR, &color);
     strcpy(include, FEN);
 
     FILE *PremierEcrit = fopen("teste.js", "w+");
-    fprintf(PremierEcrit, "traiterJson({\n\"trait\":%d,\n\"numDiag\":2,\n\"notes\": \"Une position à nombre de pièces réduit. Ici, pour gagner, les rouges jouent 4->0. Pour ne pas faire apparaître de pions évolution, il suffit de les affecter par paires bonus/malus aux mêmes colonnes\",\n\"fen\": \"%s\",\n\"bonusJ\":%d,\n\"malusJ\":%d,\n\"bonusR\":%d,\n\"malusR\":%d,\n",color, include,mJ, mR, bJ,bR);
+    fprintf(PremierEcrit, "traiterJson({\n\"trait\":%d,\n\"numDiag\":%d,\n\"notes\": \"Une position à nombre de pièces réduit. Ici, pour gagner, les rouges jouent 4->0. Pour ne pas faire apparaître de pions évolution, il suffit de les affecter par paires bonus/malus aux mêmes colonnes\",\n\"fen\": \"%s\",\n\"bonusJ\":%d,\n\"malusJ\":%d,\n\"bonusR\":%d,\n\"malusR\":%d,\n",color, Num, include,mJ, mR, bJ,bR);
     fclose(PremierEcrit);
 
     FILE *DesiemeEcrit = fopen("teste.js", "a+");
