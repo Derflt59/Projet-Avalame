@@ -19,15 +19,19 @@ Correspondant à des tours de    1 ; 2 ; 3 ; 4 ; 5 de hauteur ;
 char analyse(char* chaine, int mJ,int mR,int bJ,int bR);
 void MalusBonnusModifica(char* chaine,int* mJ,int* mR,int* bJ,int* bR, int* color);
 
-int main(int Num, char *FEN){
-    int mJ=0, mR=0, bJ=0,bR=0,color=0;
-    char* include = (char*) malloc(strlen(FEN) + 1);
-    MalusBonnusModifica(FEN, &mJ, &mR, &bJ, &bR, &color);
-    strcpy(include, FEN);
+int main(int argc, char *argv[]){
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s FEN\n", argv[0]);
+        return 1;
+    }
+    int mJ=0, mR=0, bJ=0,bR=0,color=0, num=argv[0];
+    char* FEN = argv[1];
+    char* FEN_copy = strdup(FEN); // copie de la chaîne FEN
+    MalusBonnusModifica(FEN_copy, &mJ, &mR, &bJ, &bR, &color);
 
     //traite la première partie (celle qui ne fait pas le détaille avec les collonnes)
     FILE *PremierEcrit = fopen("teste.js", "w+");
-    fprintf(PremierEcrit, "traiterJson({\n\"trait\":%d,\n\"numDiag\":%d,\n\"notes\": \"Une position à nombre de pièces réduit. Ici, pour gagner, les rouges jouent 4->0. Pour ne pas faire apparaître de pions évolution, il suffit de les affecter par paires bonus/malus aux mêmes colonnes\",\n\"fen\": \"%s\",\n\"bonusJ\":%d,\n\"malusJ\":%d,\n\"bonusR\":%d,\n\"malusR\":%d,\n",color, Num, include,mJ, mR, bJ,bR);
+    fprintf(PremierEcrit, "traiterJson({\n\"trait\":%d,\n\"numDiag\":%d,\n\"notes\": \"Une position à nombre de pièces réduit. Ici, pour gagner, les rouges jouent 4->0. Pour ne pas faire apparaître de pions évolution, il suffit de les affecter par paires bonus/malus aux mêmes colonnes\",\n\"fen\": \"%s\",\n\"bonusJ\":%d,\n\"malusJ\":%d,\n\"bonusR\":%d,\n\"malusR\":%d,\n",color, num, FEN_copy,mJ, mR, bJ,bR);
     fclose(PremierEcrit);
 
     //traite la 2e partie, celle qui traite uniquement des colones 
@@ -35,7 +39,6 @@ int main(int Num, char *FEN){
     fprintf(DesiemeEcrit, "%s", analyse(FEN,mJ, mR, bJ,bR));
     fclose(DesiemeEcrit);
 
-    free(include);
     return 0;
 }
 
@@ -63,7 +66,7 @@ Returne : la chaine FEN modiffier : sans les indications bonus / maluse ; ainsi 
 void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
     int i=0, j, IndBR=0, IndMR=0,IndBJ=0, IndMJ=0; 
     while (FEN[i]!='\0'){
-        if(i==0 && (FEN[i] == 'B' || FEN[i] == 'M' || FEN[i] == 'b' || FEN[i] == 'm')){
+        if(i==0 && (FEN[i] == 'B' || FEN[i] == 'M' || FEN[i] == 'b' || FEN[i] == 'm' ||(FEN[j] >= '1' && FEN[j] <= '9' ))){
             for(j=i;j<(strlen(FEN));j++){
                 FEN[j]=FEN[j+1];
             }
