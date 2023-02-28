@@ -16,45 +16,70 @@ Correspondant à des tours de    1 ; 2 ; 3 ; 4 ; 5 de hauteur ;
 #include <string.h>
 
 //char* chaineFEN();
-char analyse(char* chaine, int mJ,int mR,int bJ,int bR);
+char analyse(char* chaine, int mJ,int mR,int bJ,int bR, char envoi[8000]);
 void MalusBonnusModifica(char* chaine,int* mJ,int* mR,int* bJ,int* bR, int* color);
 
 int main(int argc, char *argv[]){
+    //Vérification du nombre d'argument !
     if (argc != 2) {
         fprintf(stderr, "Usage: %s FEN\n", argv[0]);
         return 1;
     }
-    int mJ=0, mR=0, bJ=0,bR=0,color=0, num=argv[0];
-    char* FEN = argv[1];
-    char* FEN_copy = strdup(FEN); // copie de la chaîne FEN
+    //Déclaration de variable : 
+    int mJ=0, mR=0, bJ=0,bR=0,color=0;
+    int num=(*argv[0]-'0');
+    char* FEN = argv[1], choix;
+    char nom[80], note[400], envoi[8000];
+    char* FEN_copy = strdup(FEN);                            // copie de la chaîne FEN pour la modification est l'analyse
+    
+
+    //Pour le nom du fichier 
+    printf("Voulez vous changer le nom du fichier ? : Y/N \n");                             
+    scanf("%c",&choix);
+    getchar();
+    if(choix =='Y' || choix =='y'){
+        printf("Quelle est le nom ? (Si espace ne pas oublier les guillements) \n");
+        scanf("%s",nom);
+        getchar();
+        strcat(nom,".js");
+    }
+    if(choix =='N' || choix == 'n'){
+        printf("Très bien ! \n");
+        strcpy(nom,"diag.js");
+    }
+
+    FILE *Creation = fopen(nom, "w+");
+    fclose(Creation);
+
+    //Pour l'ajout de note ou non
+    printf("Voulez vous ajouté une note : Y/N \n");
+    scanf("%c",&choix);
+    if(choix =='Y' || choix =='y'){
+        printf("Que voulez vous écrire \n");
+        fgets(note,400,stdin);
+    }
+
+    if(choix =='N' || choix == 'n'){
+        printf("Très bien ! \n");
+        strcpy(note,"Pas de note spécifier");
+    }
+
+    //Utilisation de modification B/M pour les écrits
     MalusBonnusModifica(FEN_copy, &mJ, &mR, &bJ, &bR, &color);
 
     //traite la première partie (celle qui ne fait pas le détaille avec les collonnes)
-    FILE *PremierEcrit = fopen("teste.js", "w+");
-    fprintf(PremierEcrit, "traiterJson({\n\"trait\":%d,\n\"numDiag\":%d,\n\"notes\": \"Une position à nombre de pièces réduit. Ici, pour gagner, les rouges jouent 4->0. Pour ne pas faire apparaître de pions évolution, il suffit de les affecter par paires bonus/malus aux mêmes colonnes\",\n\"fen\": \"%s\",\n\"bonusJ\":%d,\n\"malusJ\":%d,\n\"bonusR\":%d,\n\"malusR\":%d,\n",color, num, FEN_copy,mJ, mR, bJ,bR);
+    FILE *PremierEcrit = fopen(nom, "a+");
+    fprintf(PremierEcrit, "traiterJson({\n\"trait\":%d,\n\"numDiag\":%d,\n\"notes\": \"%s\",\n\"fen\": \"%s\",\n\"bonusJ\":%d,\n\"malusJ\":%d,\n\"bonusR\":%d,\n\"malusR\":%d,\n",color, num, note, FEN,mJ, mR, bJ,bR);
     fclose(PremierEcrit);
 
     //traite la 2e partie, celle qui traite uniquement des colones 
-    FILE *DesiemeEcrit = fopen("teste.js", "a+");
-    fprintf(DesiemeEcrit, "%s", analyse(FEN,mJ, mR, bJ,bR));
+    FILE *DesiemeEcrit = fopen("nom", "a+");
+    analyse(FEN_copy,mJ, mR, bJ,bR, envoi);
+    fprintf(DesiemeEcrit, "%s", envoi);
     fclose(DesiemeEcrit);
 
     return 0;
 }
-
-/* Retiré car non néccésaire. 
-Nom de fonction : chaineFEN
-Principe de fonctionnement : Récupère la chaine FEM 
-Returne : la chaine FEN
-char* chaineFEN(){
-    char chaine[100];
-    printf("Entrez une chaine de caractères : \n");
-    fgets(chaine, 100, stdin);
-    getchar();
-    printf("La chaine est : %s\n" , chaine);
-    return chaine;
-}
-*/
 
 
 /* 
@@ -100,17 +125,18 @@ void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
             }
         } 
     }
+    
     if (FEN[i] == 'r') *color = 2;
     if (FEN[i] == 'j') *color = 1;
+    
     }
     i++;
 }
 
-char analyse(char* FEM, int mJ,int mR,int bJ,int bR){
+char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
     int i=0, j, nb=0;
     int couleur=0, valeur=0;
     char implementation[28] = "\a{\"nb\":0, \"couleur\":0},\n";
-    char envoi[2000];
     
     for(j=0;j<strlen(FEM);j++){
         if(FEM[j] == 'u') {
@@ -235,5 +261,5 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR){
     
     strcat(envoi,"]\n });\n");                                          //Finalise le document
 
-    return *envoi;                                                       //renvoye la chaine de carachète qui permet de traduire le chaine fen
+                                                               //renvoye la chaine de carachète qui permet de traduire le chaine fen
 }
