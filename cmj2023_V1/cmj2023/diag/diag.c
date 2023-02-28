@@ -37,37 +37,39 @@ int main(int argc, char **argv){
 
 
     //Pour le nom du fichier 
-    printf("Voulez vous changer le nom du fichier ? : Y/N \n");                             
+    printf("Voulez vous changer le nom du fichier ?  (Y/N) \a");                             
     scanf("%c",&choix);
     getchar();
     if(choix =='Y' || choix =='y'){
         printf("Quelle est le nom ? \n");
         fgets(nom,80,stdin);
+        nom[strcspn(nom, "\n")] = 0; // suppression du caractère de retour à la ligne
         strcat(nom,".js");
     }
     if(choix =='N' || choix == 'n'){
-        printf("Très bien ! \n");
+        printf("Très bien ! \a");
         strcpy(nom,"diag.js");
     }
     
    
 
-    fprintf(stdout, "nom : %s \n", nom);
+    fprintf(stdout, "nom du fichier : %s \n", nom);
 
     //Pour l'ajout de note ou non
-    printf("Voulez vous ajouté une note : Y/N \n");
+    printf("Voulez vous ajouté une note ? (Y/N) \a");
     scanf("%c",&choix);
     if(choix =='Y' || choix =='y'){
         printf("Que voulez vous écrire ? \n");
         fgets(note,400,stdin);
         getchar();
-        fprintf(stdout,"%s",note);
+        note[strcspn(note, "\n")] = 0; // suppression du caractère de retour à la ligne
     }
     if(choix =='N' || choix == 'n'){
-        printf("Très bien ! \n");
+        printf("Très bien ! \a");
         strcpy(note,"Pas de note spécifier");
     }
     
+    fprintf(stdout," Note interne : %s \n",note);
     fprintf(stdout, " %s \n", "After choise");
 
     //Création du document
@@ -79,6 +81,8 @@ int main(int argc, char **argv){
     //Utilisation de modification B/M pour les écrits
     MalusBonnusModifica(FEN, &mJ, &mR, &bJ, &bR, &color);
 
+    fprintf(stdout, "FEN : %s \n", FEN);
+    fprintf(stdout, "Bonnus : %d,%d,%d,%d \n", mJ);
     fprintf(stdout, " %s \n", "After change");
 
     //traite la première partie (celle qui ne fait pas le détaille avec les collonnes)
@@ -110,34 +114,36 @@ Returne : la chaine FEN modiffier : sans les indications bonus / maluse ; ainsi 
 void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
     int i=0, j, IndBR=0, IndMR=0,IndBJ=0, IndMJ=0; 
     while (FEN[i]!='\0'){
+        fprintf(stdout,"%d",i);
         if(i==0 && (FEN[i] == 'B' || FEN[i] == 'M' || FEN[i] == 'b' || FEN[i] == 'm' ||(FEN[j] >= '1' && FEN[j] <= '9' ))){
             for(j=i;j<(strlen(FEN));j++){
                 FEN[j]=FEN[j+1];
             }
         }
         else{
-        if(FEN[i] == 'B' || FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C'){
+        
+        if(FEN[i] == 'B' &&( FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C')){
             if(IndBR==0) {*bR = i-1; IndBR=1;} //prend uniquement le premier emplacement du bonnus rouge
             for(j=i;j<(strlen(FEN));j++){
                 FEN[j]=FEN[j+1];
             }
         } 
 
-        if(FEN[i] == 'M' || FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C'){
+        if(FEN[i] == 'M' &&( FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C')){
             if(IndMR==0) {*mR = i-1; IndMR=1;} //prend uniquement le premier emplacement du malus rouge
             for(j=i;j<(strlen(FEN));j++){
                 FEN[j]=FEN[j+1];
             }
         } 
 
-        if(FEN[i] == 'b' || FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C'){
+        if(FEN[i] == 'b' && (FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C')){
             if(IndBJ==0) {*bJ = i-1; IndBJ=1;} //prend uniquement le premier emplacement du bonus jaune
             for(j=i;j<(strlen(FEN));j++){
                 FEN[j]=FEN[j+1];
             }
         } 
 
-        if(FEN[i] == 'm' || FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C'){
+        if(FEN[i] == 'm' && (FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C')){
             if(IndMJ==0) {*mJ = i-1; IndMJ=1;} //prend uniquement le premier emplacement du malus rouge
             for(j=i;j<(strlen(FEN));j++){
                 FEN[j]=FEN[j+1];
@@ -147,9 +153,10 @@ void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
     
     if (FEN[i] == 'r') *color = 2;
     if (FEN[i] == 'j') *color = 1;
-    
-    }
+
     i++;
+    }
+    
 }
 
 
