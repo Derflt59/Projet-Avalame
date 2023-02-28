@@ -15,13 +15,14 @@ Correspondant à des tours de    1 ; 2 ; 3 ; 4 ; 5 de hauteur ;
 #include <stdlib.h>
 #include <string.h>
 
-//char* chaineFEN();
-char analyse(char* chaine, int mJ,int mR,int bJ,int bR, char envoi[8000]);
-void MalusBonnusModifica(char* chaine,int* mJ,int* mR,int* bJ,int* bR, int* color);
+//char analyse(char* chaine, int mJ,int mR,int bJ,int bR, char envoi[8000]);
+//void MalusBonnusModifica(char* chaine,int* mJ,int* mR,int* bJ,int* bR, int* color);
 
 int main(int argc, char *argv[]){
     //Vérification du nombre d'argument !
-    if (argc != 2) {
+    printf("fff");
+    
+    /* if (argc != 2) {
         fprintf(stderr, "Usage: %s FEN\n", argv[0]);
         return 1;
     }
@@ -30,9 +31,9 @@ int main(int argc, char *argv[]){
     int num=(*argv[0]-'0');
     char* FEN = argv[1], choix;
     char nom[80], note[400], envoi[8000];
-    char* FEN_copy = strdup(FEN);                            // copie de la chaîne FEN pour la modification est l'analyse
+    char* FEN_copy ;                            // copie de la chaîne FEN pour la modification est l'analyse
+    strcpy(FEN_copy,FEN);
     
-
     //Pour le nom du fichier 
     printf("Voulez vous changer le nom du fichier ? : Y/N \n");                             
     scanf("%c",&choix);
@@ -47,7 +48,8 @@ int main(int argc, char *argv[]){
         printf("Très bien ! \n");
         strcpy(nom,"diag.js");
     }
-
+    */
+   /*
     FILE *Creation = fopen(nom, "w+");
     fclose(Creation);
 
@@ -63,22 +65,30 @@ int main(int argc, char *argv[]){
         printf("Très bien ! \n");
         strcpy(note,"Pas de note spécifier");
     }
-
+    */
     //Utilisation de modification B/M pour les écrits
-    MalusBonnusModifica(FEN_copy, &mJ, &mR, &bJ, &bR, &color);
+    //MalusBonnusModifica(FEN_copy, &mJ, &mR, &bJ, &bR, &color);
+
+    /*
 
     //traite la première partie (celle qui ne fait pas le détaille avec les collonnes)
     FILE *PremierEcrit = fopen(nom, "a+");
     fprintf(PremierEcrit, "traiterJson({\n\"trait\":%d,\n\"numDiag\":%d,\n\"notes\": \"%s\",\n\"fen\": \"%s\",\n\"bonusJ\":%d,\n\"malusJ\":%d,\n\"bonusR\":%d,\n\"malusR\":%d,\n",color, num, note, FEN,mJ, mR, bJ,bR);
     fclose(PremierEcrit);
 
+    */
     //traite la 2e partie, celle qui traite uniquement des colones 
-    FILE *DesiemeEcrit = fopen("nom", "a+");
+    /*
+    FILE *DesiemeEcrit = fopen(nom, "a+");
     analyse(FEN_copy,mJ, mR, bJ,bR, envoi);
     fprintf(DesiemeEcrit, "%s", envoi);
     fclose(DesiemeEcrit);
+    */
+    
 
+    
     return 0;
+    
 }
 
 
@@ -86,7 +96,7 @@ int main(int argc, char *argv[]){
 Nom de fonction : MalusBonnusModifica
 Principe de fonctionnement : Passe en revue toute les postitions jusqu'a trouvé les bonus / maluse de chaque couleur
 Returne : la chaine FEN modiffier : sans les indications bonus / maluse ; ainsi que les positions de chacun d'entre eu 
-*/
+
 
 void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
     int i=0, j, IndBR=0, IndMR=0,IndBJ=0, IndMJ=0; 
@@ -132,6 +142,12 @@ void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
     }
     i++;
 }
+*/
+
+/* 
+Nom de fonction : analyse
+Principe de fonctionnement : Prend la chaine FEN en entré pour pouvoir modiffier la valeur du pointeur d'envoie 
+Returne : rien
 
 char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
     int i=0, j, nb=0;
@@ -261,5 +277,6 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
     
     strcat(envoi,"]\n });\n");                                          //Finalise le document
 
-                                                               //renvoye la chaine de carachète qui permet de traduire le chaine fen
+                                                               
 }
+*/

@@ -123,17 +123,13 @@ void traiterJson(char *json){
     }
 }
 
-/*
+
 
 void getJson(){
     FILE *fic = fopen("refresh.js", "r");
     if(fic==NULL) exit(1);
     char json[2];
-    fscanf(fic, "var pion = %d;", &json);
+    fscanf(fic, "var pion = %s;", &json[0]);
     fclose(fic);
     traiterJson(json);
 }
-
-Problème a la compilation avec var pion 
-
-*/
