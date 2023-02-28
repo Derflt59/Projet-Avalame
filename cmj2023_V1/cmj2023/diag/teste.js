@@ -1,9 +1,0 @@
-traiterJson({
-"trait":0,
-"numDiag":3,
-"notes": "Une position Ã  nombre de piÃ¨ces rÃ©duit. Ici, pour gagner, les rouges jouent 4->0. Pour ne pas faire apparaÃ®tre de pions Ã©volution, il suffit de les affecter par paires bonus/malus aux mÃªmes colonnes",
-"fen": "î6òüü",
-"bonusJ":0,
-"malusJ":0,
-"bonusR":0,
-"malusR":0,
