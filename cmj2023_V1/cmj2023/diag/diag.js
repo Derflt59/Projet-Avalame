@@ -2,13 +2,13 @@ traiterJson({
 "trait":2,
 "numDiag":1,
 "notes": "Pas de note spécifier",
-"fen": "u2 r",
-"bonusJ":0,
-"malusJ":0,
-"bonusR":0,
+"fen": "uB2 r",
+"bonusJ":-1,
+"malusJ":-1,
+"bonusR":-1,
 "malusR":0,
 "cols":[ 
-	{"nb":1, "couleur":2},
+	{"nb":2, "couleur":2},
 	{"nb":0, "couleur":0},
 	{"nb":0, "couleur":0}
 ]

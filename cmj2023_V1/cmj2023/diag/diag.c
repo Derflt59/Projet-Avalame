@@ -29,14 +29,16 @@ int main(int argc, char **argv){
     }
 
     //Déclaration de variable : 
-    int mJ=0, mR=0, bJ=0,bR=0,color=0;    
+    int mJ=-1, mR=-1, bJ=-1,bR=-1,color=0,i;    
     int num=(*argv[1]-'0');
-    char *FEN, choix, *FEN_copy;
+    char *FEN, choix;
     FEN = (argv[2]);
-    FEN_copy=FEN;                                                                                                                                             //Copie de FEN pour gardé un originale pour le PremierEcrit :
-    char* FEN_copy2=FEN_copy;
+    char FEN_copy[strlen(FEN)];
     char nom[80], note[400], envoi[8000];
 
+    for(i=0 ; i<strlen(FEN);i++){       //recopy la chaine FEN dans une autre pour l'affichage
+        FEN_copy[i]=FEN[i];
+    }
 
     //Pour le nom du fichier 
     printf("Voulez vous changer le nom du fichier ?  (Y/N) \a");                             
@@ -78,20 +80,20 @@ int main(int argc, char **argv){
     fclose(Creation);
 
     fprintf(stdout, " %s \n", "After make");    
-
+    fprintf(stdout, " \n FEN_copy : %s \n", FEN_copy);
     fprintf(stdout, " \n FEN : %s \n", FEN);
 
     //Utilisation de modification B/M pour les écrits
     MalusBonnusModifica(FEN, &mJ, &mR, &bJ, &bR, &color);
 
     fprintf(stdout, " \n FEN : %s \n", FEN);
-    fprintf(stdout, " \n FEN_copy : %s \n", FEN_copy);
+
     fprintf(stdout, "Malus : J : %d, R :%d ; Bonnus : J : %d, R : %d ; Color : %d \n", mJ, mR, bJ, bR, color);
    
 
     //traite la première partie (celle qui ne fait pas le détaille avec les collonnes)
     FILE *PremierEcrit = fopen(nom, "a+");
-    fprintf(PremierEcrit, "traiterJson({\n\"trait\":%d,\n\"numDiag\":%d,\n\"notes\": \"%s\",\n\"fen\": \"%s\",\n\"bonusJ\":%d,\n\"malusJ\":%d,\n\"bonusR\":%d,\n\"malusR\":%d,\n\"cols\":[ \n",color, num, note, FEN_copy2,mJ, mR, bJ,bR);
+    fprintf(PremierEcrit, "traiterJson({\n\"trait\":%d,\n\"numDiag\":%d,\n\"notes\": \"%s\",\n\"fen\": \"%s\",\n\"bonusJ\":%d,\n\"malusJ\":%d,\n\"bonusR\":%d,\n\"malusR\":%d,\n\"cols\":[ \n",color, num, note, FEN_copy,mJ, mR, bJ,bR);
     fclose(PremierEcrit);
 
     fprintf(stdout, " %s \n", "After 1er");
@@ -101,9 +103,8 @@ int main(int argc, char **argv){
     analyse(FEN,mJ, mR, bJ,bR, envoi);
     fprintf(DesiemeEcrit, "%s", envoi);
     fclose(DesiemeEcrit);
-    
-    
 
+    fprintf(stdout, " %s \n", "After 2nd");
     
     return 0;
     
@@ -119,23 +120,26 @@ Returne : la chaine FEN modiffier : sans les indications bonus / maluse ; ainsi 
 void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
     int i=0, j, IndBR=0, IndMR=0,IndBJ=0, IndMJ=0; 
     while (FEN[i]!='\0'){
-        fprintf(stdout,"%d",i);
-        if(i==0 && (FEN[i] == 'B' || FEN[i] == 'M' || FEN[i] == 'b' || FEN[i] == 'm' ||(FEN[j] >= '1' && FEN[j] <= '9' ))){
+        fprintf(stdout,"%d ;",i);
+        if(i==0 && (FEN[i] == 'B' || FEN[i] == 'M' || FEN[i] == 'b' || FEN[i] == 'm' ||(FEN[j+1] >= '1' && FEN[j+1] <= '9' ))){
             for(j=i;j<(strlen(FEN));j++){
                 FEN[j]=FEN[j+1];
             }
         }
         else{
         
-        if(FEN[i] == 'B' &&( FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C')){
+        if(FEN[i] == 'B' && ( FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C')){
             if(IndBR==0) {*bR = i-1; IndBR=1;} //prend uniquement le premier emplacement du bonnus rouge
+            fprintf(stdout,"%s ","Bonnus rouge\n -->");
+            fprintf(stdout,"%d ",*bR);
             for(j=i;j<(strlen(FEN));j++){
                 FEN[j]=FEN[j+1];
             }
         } 
 
-        if(FEN[i] == 'M' &&( FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C')){
+        if(FEN[i] == 'M' && ( FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C')){
             if(IndMR==0) {*mR = i-1; IndMR=1;} //prend uniquement le premier emplacement du malus rouge
+            fprintf(stdout,"%s","Malus rouge\n");
             for(j=i;j<(strlen(FEN));j++){
                 FEN[j]=FEN[j+1];
             }
@@ -143,6 +147,7 @@ void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
 
         if(FEN[i] == 'b' && (FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C')){
             if(IndBJ==0) {*bJ = i-1; IndBJ=1;} //prend uniquement le premier emplacement du bonus jaune
+            fprintf(stdout,"%s","Bonnus jaune \n");
             for(j=i;j<(strlen(FEN));j++){
                 FEN[j]=FEN[j+1];
             }
@@ -150,6 +155,7 @@ void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
 
         if(FEN[i] == 'm' && (FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C')){
             if(IndMJ==0) {*mJ = i-1; IndMJ=1;} //prend uniquement le premier emplacement du malus rouge
+            fprintf(stdout,"%s","Malus jaune \n");
             for(j=i;j<(strlen(FEN));j++){
                 FEN[j]=FEN[j+1];
             }
