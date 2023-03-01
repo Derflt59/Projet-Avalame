@@ -33,7 +33,8 @@ int main(int argc, char **argv){
     int num=(*argv[1]-'0');
     char *FEN, choix, *FEN_copy;
     FEN = (argv[2]);
-    FEN_copy = FEN;                                                                                                                                             //Copie de FEN pour gardé un originale pour le PremierEcrit :
+    FEN_copy=FEN;                                                                                                                                             //Copie de FEN pour gardé un originale pour le PremierEcrit :
+    char* FEN_copy2=FEN_copy;
     char nom[80], note[400], envoi[8000];
 
 
@@ -53,7 +54,6 @@ int main(int argc, char **argv){
     }
     
    
-
     fprintf(stdout, "nom du fichier : %s \n", nom);
 
     //Pour l'ajout de note ou non
@@ -79,19 +79,23 @@ int main(int argc, char **argv){
 
     fprintf(stdout, " %s \n", "After make");    
 
+    fprintf(stdout, " \n FEN : %s \n", FEN);
+
     //Utilisation de modification B/M pour les écrits
     MalusBonnusModifica(FEN, &mJ, &mR, &bJ, &bR, &color);
 
     fprintf(stdout, " \n FEN : %s \n", FEN);
+    fprintf(stdout, " \n FEN_copy : %s \n", FEN_copy);
     fprintf(stdout, "Malus : J : %d, R :%d ; Bonnus : J : %d, R : %d ; Color : %d \n", mJ, mR, bJ, bR, color);
-    fprintf(stdout, " %s \n", "After change");
+   
 
     //traite la première partie (celle qui ne fait pas le détaille avec les collonnes)
     FILE *PremierEcrit = fopen(nom, "a+");
-    fprintf(PremierEcrit, "traiterJson({\n\"trait\":%d,\n\"numDiag\":%d,\n\"notes\": \"%s\",\n\"fen\": \"%s\",\n\"bonusJ\":%d,\n\"malusJ\":%d,\n\"bonusR\":%d,\n\"malusR\":%d,\n\"cols\":[ \n",color, num, note, FEN_copy,mJ, mR, bJ,bR);
+    fprintf(PremierEcrit, "traiterJson({\n\"trait\":%d,\n\"numDiag\":%d,\n\"notes\": \"%s\",\n\"fen\": \"%s\",\n\"bonusJ\":%d,\n\"malusJ\":%d,\n\"bonusR\":%d,\n\"malusR\":%d,\n\"cols\":[ \n",color, num, note, FEN_copy2,mJ, mR, bJ,bR);
     fclose(PremierEcrit);
 
-    
+    fprintf(stdout, " %s \n", "After 1er");
+
     //traite la 2e partie, celle qui traite uniquement des colones 
     FILE *DesiemeEcrit = fopen(nom, "a+");
     analyse(FEN,mJ, mR, bJ,bR, envoi);
@@ -169,28 +173,27 @@ Returne : rien
 char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
     int i=0, j, nb=0;
     int couleur=0, valeur=0;
-    char implementation[28] = "\t{\"nb\":0, \"couleur\":0},\n";
-    char *Cvaleur;
+    //char implementation[28] = "\t{\"nb\":0, \"couleur\":0},\n";
     
     for(j=0;j<strlen(FEM);j++){
         
         if(FEM[j] == 'u') {
-            valeur = 49;
+            valeur = 1;
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
-            strcpy(Cvaleur,(char)valeur);
+
             strcat(envoi,"\t{\"nb\":");
-            strcat(envoi,Cvaleur);
+            if (valeur == -1)  strcat(envoi,"-1");
+            if (valeur == 0)  strcat(envoi,"0");
+            if (valeur == 1)  strcat(envoi,"1");
+            if (valeur == 2)  strcat(envoi,"2");
+            if (valeur == 3)  strcat(envoi,"3");
+            
             strcat(envoi,", \"couleur\":");
             strcat(envoi,"2");
             strcat(envoi,"},\n");
-            /*
-            implementation[7] = valeur-'0';
-            implementation[19] = couleur-'0';
-            strcat(envoi,implementation);
-            */
             
         }
         if(FEM[j] == 'd') {
@@ -199,100 +202,156 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
-            implementation[7] = valeur;
-            implementation[19] = couleur;
-            strcat(envoi,implementation);
+            strcat(envoi,"\t{\"nb\":");
+            if (valeur == 0)  strcat(envoi,"0");
+            if (valeur == 1)  strcat(envoi,"1");
+            if (valeur == 2)  strcat(envoi,"2");
+            if (valeur == 3)  strcat(envoi,"3");
+            if (valeur == 4)  strcat(envoi,"4");
+            
+            strcat(envoi,", \"couleur\":");
+            strcat(envoi,"2");
+            strcat(envoi,"},\n");
         }
         if(FEM[j] == 't') {
-            couleur = 2; 
             valeur = 3;
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
-            implementation[7] = valeur;
-            implementation[19] = couleur;
-            strcat(envoi,implementation);
+            strcat(envoi,"\t{\"nb\":");
+            if (valeur == 1)  strcat(envoi,"1");
+            if (valeur == 2)  strcat(envoi,"2");
+            if (valeur == 3)  strcat(envoi,"3");
+            if (valeur == 4)  strcat(envoi,"4");
+            if (valeur == 5)  strcat(envoi,"5");
+            
+            strcat(envoi,", \"couleur\":");
+            strcat(envoi,"2");
+            strcat(envoi,"},\n");
         }
         if(FEM[j] == 'q') {
-            couleur = 2; 
             valeur = 4;
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
-            implementation[7] = valeur;
-            implementation[19] = couleur;
-            strcat(envoi,implementation);
+            strcat(envoi,"\t{\"nb\":");
+            if (valeur == 2)  strcat(envoi,"2");
+            if (valeur == 3)  strcat(envoi,"3");
+            if (valeur == 4)  strcat(envoi,"4");
+            if (valeur == 5)  strcat(envoi,"5");
+            if (valeur == 6)  strcat(envoi,"6");
+            
+            strcat(envoi,", \"couleur\":");
+            strcat(envoi,"2");
+            strcat(envoi,"},\n");
         }
-        if(FEM[j] == 'c') {
-            couleur = 2; 
+        if(FEM[j] == 'c') { 
             valeur = 5;
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
-            implementation[7] = valeur;
-            implementation[19] = couleur;
-            strcat(envoi,implementation);
+            strcat(envoi,"\t{\"nb\":");
+            if (valeur == 3)  strcat(envoi,"3");
+            if (valeur == 4)  strcat(envoi,"4");
+            if (valeur == 5)  strcat(envoi,"5");
+            if (valeur == 6)  strcat(envoi,"6");
+            if (valeur == 7)  strcat(envoi,"7");
+            
+            strcat(envoi,", \"couleur\":");
+            strcat(envoi,"2");
+            strcat(envoi,"},\n");
         }
+
         if(FEM[j] == 'U') {
-            couleur = 1; 
             valeur = 1;
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
-            implementation[7] = valeur;
-            implementation[19] = couleur;
-            strcat(envoi,implementation);
+
+            strcat(envoi,"\t{\"nb\":");
+            if (valeur == -1)  strcat(envoi,"-1");
+            if (valeur == 0)  strcat(envoi,"0");
+            if (valeur == 1)  strcat(envoi,"1");
+            if (valeur == 2)  strcat(envoi,"2");
+            if (valeur == 3)  strcat(envoi,"3");
+            
+            strcat(envoi,", \"couleur\":");
+            strcat(envoi,"1");
+            strcat(envoi,"},\n");
+            
         }
         if(FEM[j] == 'D') {
-            couleur = 1; 
             valeur = 2;
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
-            implementation[7] = valeur;
-            implementation[19] = couleur;
-            strcat(envoi,implementation);
+            strcat(envoi,"\t{\"nb\":");
+            if (valeur == 0)  strcat(envoi,"0");
+            if (valeur == 1)  strcat(envoi,"1");
+            if (valeur == 2)  strcat(envoi,"2");
+            if (valeur == 3)  strcat(envoi,"3");
+            if (valeur == 4)  strcat(envoi,"4");
+            
+            strcat(envoi,", \"couleur\":");
+            strcat(envoi,"1");
+            strcat(envoi,"},\n");
         }
         if(FEM[j] == 'T') {
-            couleur = 1; 
             valeur = 3;
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
-            implementation[7] = valeur;
-            implementation[19] = couleur;
-            strcat(envoi,implementation);
+            strcat(envoi,"\t{\"nb\":");
+            if (valeur == 1)  strcat(envoi,"1");
+            if (valeur == 2)  strcat(envoi,"2");
+            if (valeur == 3)  strcat(envoi,"3");
+            if (valeur == 4)  strcat(envoi,"4");
+            if (valeur == 5)  strcat(envoi,"5");
+            
+            strcat(envoi,", \"couleur\":");
+            strcat(envoi,"1");
+            strcat(envoi,"},\n");
         }
         if(FEM[j] == 'Q') {
-            couleur = 1; 
             valeur = 4;
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
-            implementation[7] = valeur;
-            implementation[19] = couleur;
-            strcat(envoi,implementation);
+            strcat(envoi,"\t{\"nb\":");
+            if (valeur == 2)  strcat(envoi,"2");
+            if (valeur == 3)  strcat(envoi,"3");
+            if (valeur == 4)  strcat(envoi,"4");
+            if (valeur == 5)  strcat(envoi,"5");
+            if (valeur == 6)  strcat(envoi,"6");
+            
+            strcat(envoi,", \"couleur\":");
+            strcat(envoi,"1");
+            strcat(envoi,"},\n");
         }
-        if(FEM[j] == 'C') {
-            couleur = 1; 
+        if(FEM[j] == 'C') { 
             valeur = 5;
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
-            implementation[7] = valeur;
-            implementation[19] = couleur;
-            strcat(envoi,implementation);
+            strcat(envoi,"\t{\"nb\":");
+            if (valeur == 3)  strcat(envoi,"3");
+            if (valeur == 4)  strcat(envoi,"4");
+            if (valeur == 5)  strcat(envoi,"5");
+            if (valeur == 6)  strcat(envoi,"6");
+            if (valeur == 7)  strcat(envoi,"7");
+            
+            strcat(envoi,", \"couleur\":");
+            strcat(envoi,"1");
+            strcat(envoi,"},\n");
         }
-        
-        fprintf(stdout, " %s \n", implementation);
 
         //Pour vérifier le nombre de case vide 
         if((FEM[j] >= '1' && FEM[j] <= '9' )){
