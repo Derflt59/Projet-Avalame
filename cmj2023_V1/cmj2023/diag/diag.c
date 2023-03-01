@@ -23,7 +23,7 @@ int main(int argc, char **argv){
     fprintf(stdout, "Num diag : %s \n", argv[1]);
     fprintf(stdout, "Chaine FEN : %s\n", argv[2]);
 
-    if (argc != 3) {                                        //vérifie si il n'y a pas plus de 3 arguments
+    if (argc != 3) {                                                                                                                                            //vérifie si il n'y a pas plus de 3 arguments
         fprintf(stderr, "Erreur dans l'exécution de : %s ; il y a plus de 3 argument, n'oublier pas les guillements pour la chaine FEN\n", argv[0]);
         return 1;
     }
@@ -31,8 +31,9 @@ int main(int argc, char **argv){
     //Déclaration de variable : 
     int mJ=0, mR=0, bJ=0,bR=0,color=0;    
     int num=(*argv[1]-'0');
-    char *FEN, choix;
+    char *FEN, choix, *FEN_copy;
     FEN = (argv[2]);
+    FEN_copy = FEN;                                                                                                                                             //Copie de FEN pour gardé un originale pour le PremierEcrit :
     char nom[80], note[400], envoi[8000];
 
 
@@ -43,7 +44,7 @@ int main(int argc, char **argv){
     if(choix =='Y' || choix =='y'){
         printf("Quelle est le nom ? \n");
         fgets(nom,80,stdin);
-        nom[strcspn(nom, "\n")] = 0; // suppression du caractère de retour à la ligne
+        nom[strcspn(nom, "\n")] = 0;                                                                                                                            //suppression du caractère de retour à la ligne
         strcat(nom,".js");
     }
     if(choix =='N' || choix == 'n'){
@@ -60,9 +61,9 @@ int main(int argc, char **argv){
     scanf("%c",&choix);
     if(choix =='Y' || choix =='y'){
         printf("Que voulez vous écrire ? \n");
-        fgets(note,400,stdin);
+        fgets(note,200,stdin);
         getchar();
-        note[strcspn(note, "\n")] = 0; // suppression du caractère de retour à la ligne
+        note[strcspn(note, "\n")] = 0;                                                                                                                              //suppression du caractère de retour à la ligne
     }
     if(choix =='N' || choix == 'n'){
         printf("Très bien ! \a");
@@ -76,7 +77,7 @@ int main(int argc, char **argv){
     FILE *Creation = fopen(nom, "w+");
     fclose(Creation);
 
-    fprintf(stdout, " %s \n", "After make");
+    fprintf(stdout, " %s \n", "After make");    
 
     //Utilisation de modification B/M pour les écrits
     MalusBonnusModifica(FEN, &mJ, &mR, &bJ, &bR, &color);
@@ -87,7 +88,7 @@ int main(int argc, char **argv){
 
     //traite la première partie (celle qui ne fait pas le détaille avec les collonnes)
     FILE *PremierEcrit = fopen(nom, "a+");
-    fprintf(PremierEcrit, "traiterJson({\n\"trait\":%d,\n\"numDiag\":%d,\n\"notes\": \"%s\",\n\"fen\": \"%s\",\n\"bonusJ\":%d,\n\"malusJ\":%d,\n\"bonusR\":%d,\n\"malusR\":%d,\n",color, num, note, argv[2],mJ, mR, bJ,bR);
+    fprintf(PremierEcrit, "traiterJson({\n\"trait\":%d,\n\"numDiag\":%d,\n\"notes\": \"%s\",\n\"fen\": \"%s\",\n\"bonusJ\":%d,\n\"malusJ\":%d,\n\"bonusR\":%d,\n\"malusR\":%d,\n\"cols\":[ \n",color, num, note, FEN_copy,mJ, mR, bJ,bR);
     fclose(PremierEcrit);
 
     
@@ -168,22 +169,31 @@ Returne : rien
 char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
     int i=0, j, nb=0;
     int couleur=0, valeur=0;
-    char implementation[28] = "\a{\"nb\":0, \"couleur\":0},\n";
+    char implementation[28] = "\t{\"nb\":0, \"couleur\":0},\n";
+    char *Cvaleur;
     
     for(j=0;j<strlen(FEM);j++){
+        
         if(FEM[j] == 'u') {
-            couleur = 2; 
-            valeur = 1;
+            valeur = 49;
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
-            implementation[7] = valeur;
-            implementation[19] = couleur;
+            strcpy(Cvaleur,(char)valeur);
+            strcat(envoi,"\t{\"nb\":");
+            strcat(envoi,Cvaleur);
+            strcat(envoi,", \"couleur\":");
+            strcat(envoi,"2");
+            strcat(envoi,"},\n");
+            /*
+            implementation[7] = valeur-'0';
+            implementation[19] = couleur-'0';
             strcat(envoi,implementation);
+            */
+            
         }
         if(FEM[j] == 'd') {
-            couleur = 2; 
             valeur = 2;
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
@@ -282,6 +292,8 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             strcat(envoi,implementation);
         }
         
+        fprintf(stdout, " %s \n", implementation);
+
         //Pour vérifier le nombre de case vide 
         if((FEM[j] >= '1' && FEM[j] <= '9' )){
             nb = nb*10 + (FEM[j]-'0');
@@ -289,9 +301,11 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
         
     }
 
-    for(i;i<nb;i++) strcat(envoi,"\a{\"nb\":0, \"couleur\":0},\n");    //permet d'affichier toute les casses vides
+    for(i;i<nb;i++) strcat(envoi,"\t{\"nb\":0, \"couleur\":0},\n");    //permet d'affichier toute les casses vides
     
-    strcat(envoi,"]\n });\n");                                          //Finalise le document
+    envoi[strlen(envoi)-2] = '\0';
+
+    strcat(envoi,"\n]\n});\n");                                          //Finalise le document
 
                                                                
 }
