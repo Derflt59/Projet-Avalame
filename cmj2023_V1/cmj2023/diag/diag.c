@@ -15,8 +15,9 @@ Correspondant à des tours de    1 ; 2 ; 3 ; 4 ; 5 de hauteur ;
 #include <stdlib.h>
 #include <string.h>
 
-char analyse(char* chaine, int mJ,int mR,int bJ,int bR, char envoi[8000]);
-void MalusBonnusModifica(char* chaine,int* mJ,int* mR,int* bJ,int* bR, int* color);
+char analyse(char* chaine, int mJ,int mR,int bJ,int bR, char envoi[8000]);                      //analyse la chaine FEN et renvoie la chaine à injecté dans le fichier javascript
+void MalusBonnusModifica(char* chaine,int* mJ,int* mR,int* bJ,int* bR, int* color);             //récupère l'emplacement des bonnus et malus et la couleur du joueur ainsi que la couleur
+void SuppressionIndesirable(char* chaine);                                                      //supprime les caractères indésirable de la chaine FEN    
 
 int main(int argc, char **argv){
     //Vérification du nombre d'argument !
@@ -92,6 +93,9 @@ int main(int argc, char **argv){
     fprintf(stdout, " \n FEN : %s \n", FEN);
     #endif
 
+    //Suppression des caractères indésirable
+    SuppressionIndesirable(FEN_copy);
+    FEN = FEN_copy;
     //Utilisation de modification B/M pour les écrits
     MalusBonnusModifica(FEN, &mJ, &mR, &bJ, &bR, &color);
 
@@ -124,6 +128,40 @@ int main(int argc, char **argv){
 }
 
 
+//Fonction pour supprimer les caractères indésirable
+void SuppressionIndesirable(char* FEN){
+    int i=strlen(FEN), j=0;
+    while (i >= 0) {
+        #ifdef __DEBUG__
+        fprintf(stdout, "FEN : %s \n", FEN);
+        #endif
+        if (FEN[i] >= '0' && FEN[i] <= '9') {
+            if((FEN[i+1] >= '0' && FEN[i+1] <= '9') || (FEN[i+1]==' ')){}
+            else{
+                for(j=i;j<(strlen(FEN));j++){
+                    FEN[j]=FEN[j+1];   
+                }
+            }
+        }
+
+        else if(FEN[i] == ' '){
+            if(FEN[i+1]!='j' && FEN[i+1]!='r' && FEN[i+1]!='J' && FEN[i+1]!='R'){
+                for(j=i;j<(strlen(FEN));j++){
+                    FEN[j]=FEN[j+1];
+                }
+            }
+        }
+
+        else if (FEN[i] != 'j' && FEN[i] != 'r' && FEN[i] != 'u' && FEN[i] != 'd' && FEN[i] != 't' && FEN[i] != 'q' && FEN[i] != 'c' && FEN[i] != 'J' && FEN[i] != 'R' && FEN[i] != 'U' && FEN[i] != 'D' && FEN[i] != 'T' && FEN[i] != 'Q' && FEN[i] != 'C' && FEN[i]!='m' && FEN[i]!='b' && FEN[i]!='M' && FEN[i]!='B' ) {
+            for(j=i;j<(strlen(FEN));j++){
+                FEN[j]=FEN[j+1];
+            }
+        
+        }
+        i--;
+    }
+}
+
 /* 
 Nom de fonction : MalusBonnusModifica
 Principe de fonctionnement : Passe en revue toute les postitions jusqu'a trouvé les bonus / maluse de chaque couleur
@@ -131,12 +169,12 @@ Returne : la chaine FEN modiffier : sans les indications bonus / maluse ; ainsi 
 */
 
 void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
-    int i=0, j,k, IndBR=0, IndMR=0,IndBJ=0, IndMJ=0,len; 
+    int i=0, j, IndBR=0, IndMR=0,IndBJ=0, IndMJ=0,len; 
 
-    //#ifdef __DEBUG__
+    #ifdef __DEBUG__
     fprintf(stdout, " %s \n", "During make");
     fprintf(stdout, "FEN : %s \n", FEN);
-    //#endif
+    #endif
 
     while((FEN[i]!='r') && (FEN[i]!='j') && (FEN[i]!='R') && (FEN[i]!='J') && (FEN[i]!= '\0') && (i <= strlen(FEN)+1)){
         #ifdef __DEBUG__
@@ -217,33 +255,7 @@ void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
     if (FEN[i] == 'j' || FEN[i]=='J') *color = 1;                               //Si le dernier caractère est j alors la couleur est jaune
     
      
-    while (i >= 0) {
-        fprintf(stdout, "FEN : %s \n", FEN);
-        if (FEN[i] >= '0' && FEN[i] <= '9') {
-            if((FEN[i+1] >= '0' && FEN[i+1] <= '9') || (FEN[i+1]==' ')){}
-            else{
-                for(j=i;j<(strlen(FEN));j++){
-                    FEN[j]=FEN[j+1];   
-                }
-            }
-        }
-
-        else if(FEN[i] == ' '){
-            if(FEN[i+1]!='j' && FEN[i+1]!='r' && FEN[i+1]!='J' && FEN[i+1]!='R'){
-                for(j=i;j<(strlen(FEN));j++){
-                    FEN[j]=FEN[j+1];
-                }
-            }
-        }
-
-        else if (FEN[i] != 'j' && FEN[i] != 'r' && FEN[i] != 'u' && FEN[i] != 'd' && FEN[i] != 't' && FEN[i] != 'q' && FEN[i] != 'c' && FEN[i] != 'J' && FEN[i] != 'R' && FEN[i] != 'U' && FEN[i] != 'D' && FEN[i] != 'T' && FEN[i] != 'Q' && FEN[i] != 'C') {
-            for(j=i;j<(strlen(FEN));j++){
-                FEN[j]=FEN[j+1];
-            }
-        
-        }
-        i--;
-    }
+    
     
 }
     
@@ -258,9 +270,11 @@ Returne : rien
 */
 char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
     int i=0, j, nb=0;
-    int couleur=0, valeur=0;
+    int couleur=0, valeur=0, count=0;
 
     for(j=0;j<strlen(FEM);j++){
+        
+        
         //Pour la couleur jaune 
         if(FEM[j] == 'u') {
             valeur = 1;
@@ -443,7 +457,7 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
         if((FEM[j] >= '1' && FEM[j] <= '9' )){
             nb = nb*10 + (FEM[j]-'0');
         }
-        
+        count++;
     }
 
     for(i;i<nb;i++) strcat(envoi,"\t{\"nb\":0, \"couleur\":0},\n");         //permet d'affichier toute les casses vides
