@@ -81,8 +81,8 @@ int main(int argc, char **argv){
     //Utilisation de modification B/M pour les écrits
     MalusBonnusModifica(FEN, &mJ, &mR, &bJ, &bR, &color);
 
-    fprintf(stdout, "FEN : %s \n", FEN);
-    fprintf(stdout, "Bonnus : %d,%d,%d,%d \n", mJ);
+    fprintf(stdout, " \n FEN : %s \n", FEN);
+    fprintf(stdout, "Malus : J : %d, R :%d ; Bonnus : J : %d, R : %d ; Color : %d \n", mJ, mR, bJ, bR, color);
     fprintf(stdout, " %s \n", "After change");
 
     //traite la première partie (celle qui ne fait pas le détaille avec les collonnes)

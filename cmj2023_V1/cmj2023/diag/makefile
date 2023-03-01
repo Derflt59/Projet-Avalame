@@ -24,5 +24,6 @@ clean:
 	rm -rf diag.exe diag.static
 	rm -rf ../build/diag.*
 
+
 cleanall: clean
 	cd ../libavalam; make clean
