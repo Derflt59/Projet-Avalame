@@ -15,6 +15,8 @@ Correspondant à des tours de    1 ; 2 ; 3 ; 4 ; 5 de hauteur ;
 #include <stdlib.h>
 #include <string.h>
 
+#define MAX_LENGTH 400
+
 char analyse(char* chaine, int mJ,int mR,int bJ,int bR, char envoi[8000]);                      //analyse la chaine FEN et renvoie la chaine à injecté dans le fichier javascript
 void MalusBonnusModifica(char* chaine,int* mJ,int* mR,int* bJ,int* bR, int* color);             //récupère l'emplacement des bonnus et malus et la couleur du joueur ainsi que la couleur
 void SuppressionIndesirable(char* chaine);                                                      //supprime les caractères indésirable de la chaine FEN    
@@ -32,24 +34,21 @@ int main(int argc, char **argv){
     }
 
     //vérification si le numérau de diagramme est bien un nombre :
-    if (*argv[1] < 48 || *argv[1] > 57)  {
+    if (*argv[1] < '0' || *argv[1] > '9')  {
         fprintf(stderr,"Erreur dans l'exécution de %s : le numero de diagramme doit etre un chiffre \n",argv[0]);
         fprintf(stderr,"Rappel : %s <num_diag> <chaine_FEN>\n", argv[0]);
         return 1;
     }
 
     //Déclaration de variable : 
-    int mJ=-1, mR=-1, bJ=-1,bR=-1,color=0,i;    
+    int mJ=-1, mR=-1, bJ=-1,bR=-1,color=0,i=0,c;    
     int num=(*argv[1]-'0');
     char *FEN, choix;
     FEN = (argv[2]);
     char FEN_copy[strlen(FEN)];
-    char nom[80], note[400], envoi[8000];
+    char nom[80], note[MAX_LENGTH],envoi[8000];
 
-    for(i=0 ; i<strlen(FEN);i++){       //recopy la chaine FEN dans une autre pour l'affichage
-        FEN_copy[i]=FEN[i];
-    }
-
+    
     #ifdef __DEBUG__
     fprintf(stdout,"valeur de i : %d \n",i);
     fprintf(stdout, "Chaine FEN_Copy : %s\n", FEN_copy);
@@ -57,6 +56,7 @@ int main(int argc, char **argv){
     #endif
 
     //vérification de la conformité de la chaine FEN avant le début des traitements : (utilisation du code ACSII)
+    i = strlen(FEN);                    //i est la longueur de la chaine FEN
     if (FEN[i-1] != 'r' && FEN[i-1] != 'j' && FEN[i-1] != 'R' && FEN[i-1] != 'J')  {
         fprintf(stderr,"Erreur dans l'exécution de %s : la trace doit être un r ou un j\n",argv[0]);
         fprintf(stderr,"Rappel : %s <num_diag> <chaine_FEN> \n", argv[0]);
@@ -74,14 +74,18 @@ int main(int argc, char **argv){
     #endif
 
     //Pour l'ajout d'une note ou non
+    i=0;                //remise à 0 pour utilisation dans la boucle
     printf("Descriptions, taille maximale 400 charactère, appuiller sur Ctrl+D pour quitter le mode intéractif: \n");
-    while (fgets(note,400,stdin) != NULL) ;                      // Récupère les entrées clavier jusqu'on appuis sur Ctrl+D pour la note
+    while ((c = getchar()) != EOF && i < MAX_LENGTH && c != '\0') {// Récupère les entrées clavier jusqu'on appuis sur Ctrl+D pour la note
+        note[i++] = c;
+    }
+    note[i] = '\0';                                  
     
     #ifdef __DEBUG__
     fprintf(stdout, "note du fichier : %s \n", note);           // montre si les notes sont vides ou pas 
     #endif
     
-    if(*note=='\0') strcpy(note,"Pas de note spécifier");       //rajoute une note disant qu'il n'y a pas de note 
+    
 
     #ifdef __DEBUG__
     fprintf(stdout, "note du fichier : %s \n", note);           //montre les notes 
@@ -98,10 +102,10 @@ int main(int argc, char **argv){
     #endif
 
     //Suppression des caractères indésirable
-    SuppressionIndesirable(FEN_copy);
+    SuppressionIndesirable(FEN);
 
-    for(i=0 ; i<strlen(FEN_copy);i++){       //recopy la chaine FEN dans une autre pour l'affichage
-        FEN[i]=FEN_copy[i];
+    for(i=0 ; i<strlen(FEN);i++){       //recopy la chaine FEN dans une autre pour l'affichage
+        FEN_copy[i]=FEN[i];
     }
 
     //Utilisation de modification B/M pour les écrits
@@ -137,8 +141,10 @@ int main(int argc, char **argv){
 
 
 //Fonction pour supprimer les caractères indésirable
+//Principe de fonctionnement : Parcours la chaine FEN pour retirer les caractères indésirable en vérifiant si le caractère est un chiffre ou un espace puis si c'est une lettre autorisé
+//Return : la chaine FEN sans les caractères indésirable
 void SuppressionIndesirable(char* FEN){
-    int i=strlen(FEN), j=0;
+    int i=strlen(FEN)+1, j=0;
     while (i >= 0) {
         #ifdef __DEBUG__
         fprintf(stdout, "FEN : %s \n", FEN);
@@ -160,12 +166,22 @@ void SuppressionIndesirable(char* FEN){
             }
         }
 
+        else if(FEN[i] == 'j' || FEN[i] == 'r' || FEN[i] == 'J' || FEN[i] == 'R'){
+            if(FEN[i-1]!=' '){
+                for(j=i;j<(strlen(FEN));j++){
+                    FEN[j]=FEN[j+1];
+                }
+            }
+        }
+
         else if (FEN[i] != 'j' && FEN[i] != 'r' && FEN[i] != 'u' && FEN[i] != 'd' && FEN[i] != 't' && FEN[i] != 'q' && FEN[i] != 'c' && FEN[i] != 'J' && FEN[i] != 'R' && FEN[i] != 'U' && FEN[i] != 'D' && FEN[i] != 'T' && FEN[i] != 'Q' && FEN[i] != 'C' && FEN[i]!='m' && FEN[i]!='b' && FEN[i]!='M' && FEN[i]!='B' ) {
             for(j=i;j<(strlen(FEN));j++){
                 FEN[j]=FEN[j+1];
             }
         
         }
+
+        
         i--;
     }
 }
@@ -189,7 +205,7 @@ void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
         fprintf(stdout,"%d ;",i);
         #endif
 
-        if(i==0 && (FEN[i] == 'B' || FEN[i] == 'M' || FEN[i] == 'b' || FEN[i] == 'm')){
+        if(i==0 && (FEN[i] == 'B' || FEN[i] == 'M' || FEN[i] == 'b' || FEN[i] == 'm')){     //si le premier caractère est un bonus ou malus et donc le supprime car ne set à rien
             
             fprintf(stdout, " %s \n", "1er verify");
             if(FEN[i] == 'B') {IndBR=1;}
@@ -480,8 +496,10 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
         j++;
     }
 
-
+    #ifdef __DEBUG__
     fprintf(stdout, " \n count : %d \n", count);
+    #endif
+
     //Permet d'avoir toujours 48 cases d'afficher 
     if (nb > 48) nb = 48 - count;           //si le nombre demandé de case vide est supérieur à 48, on affiche 48 cases vides moin le nombre de case déjà afficher
     if (count == 48) nb = 0;                //si le nombre de case déjà afficher est égale à 48, on affiche 0 case vide
@@ -494,8 +512,5 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
     for(i;i<nb;i++) strcat(envoi,"\t{\"nb\":0, \"couleur\":0},\n");         //permet d'affichier toute les casses vides
     
     envoi[strlen(envoi)-2] = '\0';                                          //Supprime la dernière virgule        
-
-    strcat(envoi,"\n]\n});\n");                                             //Finalise le document
-
-                                                               
+    strcat(envoi,"\n]\n});\n");                                             //Finalise le document                                                          
 }
