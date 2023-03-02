@@ -283,7 +283,9 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
     int couleur=0, valeur=0, count=0;
 
     while(j<strlen(FEM) && count<=48){
+        #ifdef __DEBUG__
         fprintf(stdout, " \n count : %d \n", count);
+        #endif
         //Pour la couleur jaune 
         if(FEM[j] == 'u') {
             valeur = 1;
@@ -485,7 +487,9 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
     if (count == 48) nb = 0;                //si le nombre de case déjà afficher est égale à 48, on affiche 0 case vide
     if ((nb + count) < 48) nb = 48 - count; //si le nombre de case déjà afficher plus le nombre de case vide demandé est inférieur à 48, on affiche 48 cases vides moin le nombre de case déjà afficher
 
+    #ifdef __DEBUG__
     fprintf(stdout, " \n NB : %d \n", nb);
+    #endif
 
     for(i;i<nb;i++) strcat(envoi,"\t{\"nb\":0, \"couleur\":0},\n");         //permet d'affichier toute les casses vides
     
