@@ -74,17 +74,21 @@ int main(int argc, char **argv){
     #endif
 
     //Pour l'ajout d'une note ou non
-    printf("Entré une descriptions, taille maximale 400 charactère, appuiller sur Ctrl+D pour quitter le mode intéractif: \n");
+    printf("Descriptions, taille maximale 400 charactère, appuiller sur Ctrl+D pour quitter le mode intéractif: \n");
     while (fgets(note,400,stdin) != NULL) ;                      // Récupère les entrées clavier jusqu'on appuis sur Ctrl+D pour la note
     
+    #ifdef __DEBUG__
     fprintf(stdout, "note du fichier : %s \n", note);           // montre si les notes sont vides ou pas 
+    #endif
     
     if(*note=='\0') strcpy(note,"Pas de note spécifier");       //rajoute une note disant qu'il n'y a pas de note 
 
+    #ifdef __DEBUG__
     fprintf(stdout, "note du fichier : %s \n", note);           //montre les notes 
+    #endif
 
     //Création du document
-    FILE *Creation = fopen(nom, "w+");
+    FILE *Creation = fopen(nom, "w+");                          // Création du fichier avec le nom donné en argument
     fclose(Creation);
 
     #ifdef __DEBUG__
@@ -95,14 +99,18 @@ int main(int argc, char **argv){
 
     //Suppression des caractères indésirable
     SuppressionIndesirable(FEN_copy);
-    FEN = FEN_copy;
+
+    for(i=0 ; i<strlen(FEN_copy);i++){       //recopy la chaine FEN dans une autre pour l'affichage
+        FEN[i]=FEN_copy[i];
+    }
+
     //Utilisation de modification B/M pour les écrits
     MalusBonnusModifica(FEN, &mJ, &mR, &bJ, &bR, &color);
 
-    //#ifdef __DEBUG__
+    #ifdef __DEBUG__
     fprintf(stdout, " \n FEN : %s \n", FEN);
     fprintf(stdout, "Malus : J : %d, R :%d ; Bonnus : J : %d, R : %d ; Color : %d \n", mJ, mR, bJ, bR, color);
-    //#endif
+    #endif
 
     //traite la première partie (celle qui ne fait pas le détaille avec les collonnes)
     FILE *PremierEcrit = fopen(nom, "a+");
@@ -250,7 +258,9 @@ void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
 
         i++;
     }
+    #ifdef __DEBUG__
     fprintf(stdout, " \n FEN : %s \n", FEN);
+    #endif
     if (FEN[i] == 'r' || FEN[i]=='R') *color = 2;                               //Si le dernier caractère est r alors la couleur est rouge
     if (FEN[i] == 'j' || FEN[i]=='J') *color = 1;                               //Si le dernier caractère est j alors la couleur est jaune
     
@@ -269,12 +279,11 @@ Principe de fonctionnement : Prend la chaine FEN en entré pour pouvoir modiffie
 Returne : rien
 */
 char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
-    int i=0, j, nb=0;
+    int i=0, j=0, nb=0;
     int couleur=0, valeur=0, count=0;
 
-    for(j=0;j<strlen(FEM);j++){
-        
-        
+    while(j<strlen(FEM) && count<=48){
+        fprintf(stdout, " \n count : %d \n", count);
         //Pour la couleur jaune 
         if(FEM[j] == 'u') {
             valeur = 1;
@@ -293,7 +302,7 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             strcat(envoi,", \"couleur\":");
             strcat(envoi,"2");
             strcat(envoi,"},\n");
-            
+            count++;
         }
         if(FEM[j] == 'd') {
             valeur = 2;
@@ -311,6 +320,7 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             strcat(envoi,", \"couleur\":");
             strcat(envoi,"2");
             strcat(envoi,"},\n");
+            count++;
         }
         if(FEM[j] == 't') {
             valeur = 3;
@@ -328,6 +338,7 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             strcat(envoi,", \"couleur\":");
             strcat(envoi,"2");
             strcat(envoi,"},\n");
+            count++;
         }
         if(FEM[j] == 'q') {
             valeur = 4;
@@ -345,6 +356,7 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             strcat(envoi,", \"couleur\":");
             strcat(envoi,"2");
             strcat(envoi,"},\n");
+            count++;
         }
         if(FEM[j] == 'c') { 
             valeur = 5;
@@ -362,6 +374,7 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             strcat(envoi,", \"couleur\":");
             strcat(envoi,"2");
             strcat(envoi,"},\n");
+            count++;
         }
 
         //Pour la couleur rouge
@@ -382,7 +395,7 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             strcat(envoi,", \"couleur\":");
             strcat(envoi,"1");
             strcat(envoi,"},\n");
-            
+            count++;
         }
         if(FEM[j] == 'D') {
             valeur = 2;
@@ -400,6 +413,7 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             strcat(envoi,", \"couleur\":");
             strcat(envoi,"1");
             strcat(envoi,"},\n");
+            count++;
         }
         if(FEM[j] == 'T') {
             valeur = 3;
@@ -417,6 +431,7 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             strcat(envoi,", \"couleur\":");
             strcat(envoi,"1");
             strcat(envoi,"},\n");
+            count++;
         }
         if(FEM[j] == 'Q') {
             valeur = 4;
@@ -434,6 +449,7 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             strcat(envoi,", \"couleur\":");
             strcat(envoi,"1");
             strcat(envoi,"},\n");
+            count++;
         }
         if(FEM[j] == 'C') { 
             valeur = 5;
@@ -451,14 +467,25 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             strcat(envoi,", \"couleur\":");
             strcat(envoi,"1");
             strcat(envoi,"},\n");
+            count++;
         }
 
         //Pour vérifier le nombre de case vide 
         if((FEM[j] >= '1' && FEM[j] <= '9' )){
             nb = nb*10 + (FEM[j]-'0');
         }
-        count++;
+        
+        j++;
     }
+
+
+    fprintf(stdout, " \n count : %d \n", count);
+    //Permet d'avoir toujours 48 cases d'afficher 
+    if (nb > 48) nb = 48 - count;           //si le nombre demandé de case vide est supérieur à 48, on affiche 48 cases vides moin le nombre de case déjà afficher
+    if (count == 48) nb = 0;                //si le nombre de case déjà afficher est égale à 48, on affiche 0 case vide
+    if ((nb + count) < 48) nb = 48 - count; //si le nombre de case déjà afficher plus le nombre de case vide demandé est inférieur à 48, on affiche 48 cases vides moin le nombre de case déjà afficher
+
+    fprintf(stdout, " \n NB : %d \n", nb);
 
     for(i;i<nb;i++) strcat(envoi,"\t{\"nb\":0, \"couleur\":0},\n");         //permet d'affichier toute les casses vides
     
