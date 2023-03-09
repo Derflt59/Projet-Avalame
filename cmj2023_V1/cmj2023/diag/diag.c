@@ -17,7 +17,7 @@ Correspondant à des tours de    1 ; 2 ; 3 ; 4 ; 5 de hauteur ;
 
 #define MAX_LENGTH 400
 
-char analyse(char* chaine, int mJ,int mR,int bJ,int bR, char envoi[8000]);                      //analyse la chaine FEN et renvoie la chaine à injecté dans le fichier javascript
+void analyse(char* chaine, int mJ,int mR,int bJ,int bR, char envoi[8000]);                      //analyse la chaine FEN et renvoie la chaine à injecté dans le fichier javascript
 void MalusBonnusModifica(char* chaine,int* mJ,int* mR,int* bJ,int* bR, int* color);             //récupère l'emplacement des bonnus et malus et la couleur du joueur ainsi que la couleur
 void SuppressionIndesirable(char* chaine);                                                      //supprime les caractères indésirable de la chaine FEN    
 
@@ -63,30 +63,43 @@ int main(int argc, char **argv){
         return 1;
     }
 
-    //Pour le nom du fichier 
-    fgets(nom, sizeof(nom), stdin);                         // Récupère les entrées clavier jusqu'on appuis sur la bar entrer pour récupéré le nom      
-    if(*nom=='\n') strcpy(nom,"diag");                     // Si le nom est vide on prend juste le nom de base qui est diag.js
-    nom[strcspn(nom, "\n")] = 0;                          // Supprime le \n si présent en dernier 
-    strcat(nom,".js");                                   // Rajoute l'extention .js au nom donné 
+    fprintf(stdout, "Entrée un nom et appuyer sur enter pour valider :");
 
-    #ifdef __DEBUG__
-    fprintf(stdout, "nom du fichier : %s \n", nom);
-    #endif
+    //Pour le nom du fichier 
+    fgets(nom, sizeof(nom), stdin);                                                                                     // Récupère les entrées clavier jusqu'on appuis sur la bar entrer pour récupéré le nom      
+    if(*nom=='\n') strcpy(nom,"diag");                                                                                  // Si le nom est vide on prend juste le nom de base qui est diag.js
+    nom[strcspn(nom, "\n")] = 0;                                                                                        // Supprime le \n si présent en dernier 
+    if (nom[strlen(nom)-3] != '.' && nom[strlen(nom)-2] != 'j' && nom[strlen(nom)-1] != 's')   strcat(nom,".js");       // Si le nom n'a pas l'extention .js on rajoute l'extention
+  
+                               
+    
+    fprintf(stdout, "\n Nom du fichier : %s \n", nom);
+    
 
     //Pour l'ajout d'une note ou non
     i=0;                //remise à 0 pour utilisation dans la boucle
     printf("Descriptions, taille maximale 400 charactère, appuiller sur Ctrl+D pour quitter le mode intéractif: \n");
     while ((c = getchar()) != EOF && i < MAX_LENGTH && c != '\0') {// Récupère les entrées clavier jusqu'on appuis sur Ctrl+D pour la note
-        note[i++] = c;
-    }
-    note[i] = '\0';                                  
-    
-    #ifdef __DEBUG__
-    fprintf(stdout, "note du fichier : %s \n", note);           // montre si les notes sont vides ou pas 
-    #endif
-    
-    
+        
+        #ifdef __DEBUG__
+        fprintf(stdout, "c : %c \n", c);            //affiche la valeur de c en char 
+        #endif
 
+        //vérifie si la touche entrer est appuyé et donc elle est transformé en balise <br> pour le fichier javascript
+        if (c == 10) {           //code ascii de la touche entrer
+            note[i++] = 60;      //code ascii de <
+            note[i++] = 98;      //code ascii de b
+            note[i++] = 114;     //code ascii de r
+            note[i++] = 62;      //code ascii de >
+        }
+        else {note[i++] = c;}
+       
+        
+        
+    }
+    note[i-4] = '\0';                                  
+    
+   
     #ifdef __DEBUG__
     fprintf(stdout, "note du fichier : %s \n", note);           //montre les notes 
     #endif
@@ -103,18 +116,28 @@ int main(int argc, char **argv){
 
     //Suppression des caractères indésirable
     SuppressionIndesirable(FEN);
-
-    for(i=0 ; i<strlen(FEN);i++){       //recopy la chaine FEN dans une autre pour l'affichage
+    
+    //#ifdef __DEBUG__
+    fprintf(stdout, " \n%s\n", "Après suppression des caractères indésirable");
+    fprintf(stdout, " FEN : %s \n", FEN);
+    //#endif
+    
+    for(i=0 ; i<strlen(FEN)+1 ;i++){       //recopy la chaine FEN dans une autre pour l'affichage
         FEN_copy[i]=FEN[i];
     }
+
+    #ifdef __DEBUG__
+    fprintf(stdout, " FEN_copy : %s \n", FEN_copy);             /*Affiche la chaine FEN qui à été copier dans FEN_copy et qui est corriger */
+    #endif  
 
     //Utilisation de modification B/M pour les écrits
     MalusBonnusModifica(FEN, &mJ, &mR, &bJ, &bR, &color);
 
-    #ifdef __DEBUG__
-    fprintf(stdout, " \n FEN : %s \n", FEN);
+    //#ifdef __DEBUG__
+    fprintf(stdout, " \n%s\n", "Après modification pour les B/M");
+    fprintf(stdout, " FEN : %s \n", FEN);
     fprintf(stdout, "Malus : J : %d, R :%d ; Bonnus : J : %d, R : %d ; Color : %d \n", mJ, mR, bJ, bR, color);
-    #endif
+    //#endif
 
     //traite la première partie (celle qui ne fait pas le détaille avec les collonnes)
     FILE *PremierEcrit = fopen(nom, "a+");
@@ -135,8 +158,7 @@ int main(int argc, char **argv){
     fprintf(stdout, " %s \n", "After 2nd");
     #endif
 
-    return 0;
-    
+    return 0;  
 }
 
 
@@ -144,47 +166,43 @@ int main(int argc, char **argv){
 //Principe de fonctionnement : Parcours la chaine FEN pour retirer les caractères indésirable en vérifiant si le caractère est un chiffre ou un espace puis si c'est une lettre autorisé
 //Return : la chaine FEN sans les caractères indésirable
 void SuppressionIndesirable(char* FEN){
-    int i=strlen(FEN)+1, j=0;
+    int i=strlen(FEN)-1, j=0;
     while (i >= 0) {
         #ifdef __DEBUG__
-        fprintf(stdout, "FEN : %s \n", FEN);
+        fprintf(stdout, "FEN : %s ", FEN);
+        fprintf(stdout, "\a c : %c \n", FEN[i]);
         #endif
-        if (FEN[i] >= '0' && FEN[i] <= '9') {
-            if((FEN[i+1] >= '0' && FEN[i+1] <= '9') || (FEN[i+1]==' ')){}
-            else{
-                for(j=i;j<(strlen(FEN));j++){
-                    FEN[j]=FEN[j+1];   
-                }
-            }
+        if (FEN[i] >= '0' && FEN[i] <= '9') {                               //Si le caractère est un chiffre
+                                                                            // On ne fait rien
         }
 
-        else if(FEN[i] == ' '){
-            if(FEN[i+1]!='j' && FEN[i+1]!='r' && FEN[i+1]!='J' && FEN[i+1]!='R'){
+        else if(FEN[i] == ' '){                                                                     //Si le caractère est un espace
+            if(FEN[i+1]!='j' && FEN[i+1]!='r' && FEN[i+1]!='J' && FEN[i+1]!='R'){                   //Si le caractère suivant n'est pas une lettre de trait on supprime le caractère
                 for(j=i;j<(strlen(FEN));j++){
                     FEN[j]=FEN[j+1];
                 }
             }
         }
 
-        else if(FEN[i] == 'j' || FEN[i] == 'r' || FEN[i] == 'J' || FEN[i] == 'R'){
-            if(FEN[i-1]!=' '){
+        else if(FEN[i] == 'j' || FEN[i] == 'r' || FEN[i] == 'J' || FEN[i] == 'R'){                  //Si le caractère est une lettre de trait
+            if(FEN[i-1]!=' '){                                                                      //Si le caractère précédent n'est pas un espace on supprime le caractère
                 for(j=i;j<(strlen(FEN));j++){
                     FEN[j]=FEN[j+1];
                 }
             }
         }
 
-        else if (FEN[i] != 'j' && FEN[i] != 'r' && FEN[i] != 'u' && FEN[i] != 'd' && FEN[i] != 't' && FEN[i] != 'q' && FEN[i] != 'c' && FEN[i] != 'J' && FEN[i] != 'R' && FEN[i] != 'U' && FEN[i] != 'D' && FEN[i] != 'T' && FEN[i] != 'Q' && FEN[i] != 'C' && FEN[i]!='m' && FEN[i]!='b' && FEN[i]!='M' && FEN[i]!='B' ) {
-            for(j=i;j<(strlen(FEN));j++){
+        else if (FEN[i] != 'u' && FEN[i] != 'd' && FEN[i] != 't' && FEN[i] != 'q' && FEN[i] != 'c' && FEN[i] != 'j' && FEN[i] != 'r' && FEN[i] != 'J' && FEN[i] != 'R' && FEN[i] != ' ' && FEN[i] != 'M' && FEN[i] != 'B' && FEN[i] != 'm' && FEN[i] != 'B'){               //Si le caractère n'est pas une lettre autorisée
+            for(j=i;j<(strlen(FEN));j++){                                                           //On supprime le caractère 
                 FEN[j]=FEN[j+1];
             }
         
         }
-
         
         i--;
     }
 }
+
 
 /* 
 Nom de fonction : MalusBonnusModifica
@@ -234,7 +252,7 @@ void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
                 }
             } 
 
-            if(FEN[i] == 'M' && ( FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C')){
+            else if(FEN[i] == 'M' && ( FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C')){
                 if(IndMR==0) {*mR = i-1; IndMR=1;} //prend uniquement le premier emplacement du malus rouge
                 #ifdef __DEBUG__
                 fprintf(stdout,"%s","Malus rouge -->");
@@ -245,7 +263,7 @@ void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
                 }
             } 
 
-            if(FEN[i] == 'b' && (FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C')){
+            else if(FEN[i] == 'b' && (FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C')){
                 if(IndBJ==0) {*bJ = i-1; IndBJ=1;} //prend uniquement le premier emplacement du bonus jaune
                 #ifdef __DEBUG__
                 fprintf(stdout,"%s","Bonnus jaune -->");
@@ -256,7 +274,7 @@ void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
                 }
             } 
 
-            if(FEN[i] == 'm' && (FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C')){
+            else if(FEN[i] == 'm' && (FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C')){
                 if(IndMJ==0) {*mJ = i-1; IndMJ=1;} //prend uniquement le premier emplacement du malus rouge
                 #ifdef __DEBUG__
                 fprintf(stdout,"%s","Malus jaune -->");
@@ -286,23 +304,22 @@ void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
 }
     
 
-
-
-
 /* 
 Nom de fonction : analyse
 Principe de fonctionnement : Prend la chaine FEN en entré pour pouvoir modiffier la valeur du pointeur d'envoie 
 Returne : rien
 */
-char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
+void analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
     int i=0, j=0, nb=0;
     int couleur=0, valeur=0, count=0;
 
     while(j<strlen(FEM) && count<=48){
+        
         #ifdef __DEBUG__
         fprintf(stdout, " \n count : %d \n", count);
         #endif
-        //Pour la couleur jaune 
+
+        //Pour la couleur rouge 
         if(FEM[j] == 'u') {
             valeur = 1;
             if (mJ == j) valeur = valeur - 1;
@@ -312,17 +329,17 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
 
             strcat(envoi,"\t{\"nb\":");
             if (valeur == -1)  strcat(envoi,"-1");
-            if (valeur == 0)  strcat(envoi,"0");
-            if (valeur == 1)  strcat(envoi,"1");
-            if (valeur == 2)  strcat(envoi,"2");
-            if (valeur == 3)  strcat(envoi,"3");
+            else if (valeur == 0)  strcat(envoi,"0");
+            else if (valeur == 1)  strcat(envoi,"1");
+            else if (valeur == 2)  strcat(envoi,"2");
+            else if (valeur == 3)  strcat(envoi,"3");
             
             strcat(envoi,", \"couleur\":");
             strcat(envoi,"2");
             strcat(envoi,"},\n");
             count++;
         }
-        if(FEM[j] == 'd') {
+        else if(FEM[j] == 'd') {
             valeur = 2;
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
@@ -330,17 +347,17 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             if (bR == j) valeur = valeur + 1;
             strcat(envoi,"\t{\"nb\":");
             if (valeur == 0)  strcat(envoi,"0");
-            if (valeur == 1)  strcat(envoi,"1");
-            if (valeur == 2)  strcat(envoi,"2");
-            if (valeur == 3)  strcat(envoi,"3");
-            if (valeur == 4)  strcat(envoi,"4");
+            else if (valeur == 1)  strcat(envoi,"1");
+            else if (valeur == 2)  strcat(envoi,"2");
+            else if (valeur == 3)  strcat(envoi,"3");
+            else if (valeur == 4)  strcat(envoi,"4");
             
             strcat(envoi,", \"couleur\":");
             strcat(envoi,"2");
             strcat(envoi,"},\n");
             count++;
         }
-        if(FEM[j] == 't') {
+        else if(FEM[j] == 't') {
             valeur = 3;
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
@@ -348,17 +365,17 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             if (bR == j) valeur = valeur + 1;
             strcat(envoi,"\t{\"nb\":");
             if (valeur == 1)  strcat(envoi,"1");
-            if (valeur == 2)  strcat(envoi,"2");
-            if (valeur == 3)  strcat(envoi,"3");
-            if (valeur == 4)  strcat(envoi,"4");
-            if (valeur == 5)  strcat(envoi,"5");
+            else if (valeur == 2)  strcat(envoi,"2");
+            else if (valeur == 3)  strcat(envoi,"3");
+            else if (valeur == 4)  strcat(envoi,"4");
+            else if (valeur == 5)  strcat(envoi,"5");
             
             strcat(envoi,", \"couleur\":");
             strcat(envoi,"2");
             strcat(envoi,"},\n");
             count++;
         }
-        if(FEM[j] == 'q') {
+        else if(FEM[j] == 'q') {
             valeur = 4;
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
@@ -366,17 +383,17 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             if (bR == j) valeur = valeur + 1;
             strcat(envoi,"\t{\"nb\":");
             if (valeur == 2)  strcat(envoi,"2");
-            if (valeur == 3)  strcat(envoi,"3");
-            if (valeur == 4)  strcat(envoi,"4");
-            if (valeur == 5)  strcat(envoi,"5");
-            if (valeur == 6)  strcat(envoi,"6");
+            else if (valeur == 3)  strcat(envoi,"3");
+            else if (valeur == 4)  strcat(envoi,"4");
+            else if (valeur == 5)  strcat(envoi,"5");
+            else if (valeur == 6)  strcat(envoi,"6");
             
             strcat(envoi,", \"couleur\":");
             strcat(envoi,"2");
             strcat(envoi,"},\n");
             count++;
         }
-        if(FEM[j] == 'c') { 
+        else if(FEM[j] == 'c') { 
             valeur = 5;
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
@@ -384,10 +401,10 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             if (bR == j) valeur = valeur + 1;
             strcat(envoi,"\t{\"nb\":");
             if (valeur == 3)  strcat(envoi,"3");
-            if (valeur == 4)  strcat(envoi,"4");
-            if (valeur == 5)  strcat(envoi,"5");
-            if (valeur == 6)  strcat(envoi,"6");
-            if (valeur == 7)  strcat(envoi,"7");
+            else if (valeur == 4)  strcat(envoi,"4");
+            else if (valeur == 5)  strcat(envoi,"5");
+            else if (valeur == 6)  strcat(envoi,"6");
+            else if (valeur == 7)  strcat(envoi,"7");
             
             strcat(envoi,", \"couleur\":");
             strcat(envoi,"2");
@@ -395,8 +412,8 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             count++;
         }
 
-        //Pour la couleur rouge
-        if(FEM[j] == 'U') {
+        //Pour la couleur jaoune
+        else if(FEM[j] == 'U') {
             valeur = 1;
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
@@ -405,17 +422,17 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
 
             strcat(envoi,"\t{\"nb\":");
             if (valeur == -1)  strcat(envoi,"-1");
-            if (valeur == 0)  strcat(envoi,"0");
-            if (valeur == 1)  strcat(envoi,"1");
-            if (valeur == 2)  strcat(envoi,"2");
-            if (valeur == 3)  strcat(envoi,"3");
+            else if (valeur == 0)  strcat(envoi,"0");
+            else if (valeur == 1)  strcat(envoi,"1");
+            else if (valeur == 2)  strcat(envoi,"2");
+            else if (valeur == 3)  strcat(envoi,"3");
             
             strcat(envoi,", \"couleur\":");
             strcat(envoi,"1");
             strcat(envoi,"},\n");
             count++;
         }
-        if(FEM[j] == 'D') {
+        else if(FEM[j] == 'D') {
             valeur = 2;
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
@@ -423,17 +440,17 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             if (bR == j) valeur = valeur + 1;
             strcat(envoi,"\t{\"nb\":");
             if (valeur == 0)  strcat(envoi,"0");
-            if (valeur == 1)  strcat(envoi,"1");
-            if (valeur == 2)  strcat(envoi,"2");
-            if (valeur == 3)  strcat(envoi,"3");
-            if (valeur == 4)  strcat(envoi,"4");
+            else if (valeur == 1)  strcat(envoi,"1");
+            else if (valeur == 2)  strcat(envoi,"2");
+            else if (valeur == 3)  strcat(envoi,"3");
+            else if (valeur == 4)  strcat(envoi,"4");
             
             strcat(envoi,", \"couleur\":");
             strcat(envoi,"1");
             strcat(envoi,"},\n");
             count++;
         }
-        if(FEM[j] == 'T') {
+        else if(FEM[j] == 'T') {
             valeur = 3;
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
@@ -441,17 +458,17 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             if (bR == j) valeur = valeur + 1;
             strcat(envoi,"\t{\"nb\":");
             if (valeur == 1)  strcat(envoi,"1");
-            if (valeur == 2)  strcat(envoi,"2");
-            if (valeur == 3)  strcat(envoi,"3");
-            if (valeur == 4)  strcat(envoi,"4");
-            if (valeur == 5)  strcat(envoi,"5");
+            else if (valeur == 2)  strcat(envoi,"2");
+            else if (valeur == 3)  strcat(envoi,"3");
+            else if (valeur == 4)  strcat(envoi,"4");
+            else if (valeur == 5)  strcat(envoi,"5");
             
             strcat(envoi,", \"couleur\":");
             strcat(envoi,"1");
             strcat(envoi,"},\n");
             count++;
         }
-        if(FEM[j] == 'Q') {
+        else if(FEM[j] == 'Q') {
             valeur = 4;
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
@@ -459,17 +476,17 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             if (bR == j) valeur = valeur + 1;
             strcat(envoi,"\t{\"nb\":");
             if (valeur == 2)  strcat(envoi,"2");
-            if (valeur == 3)  strcat(envoi,"3");
-            if (valeur == 4)  strcat(envoi,"4");
-            if (valeur == 5)  strcat(envoi,"5");
-            if (valeur == 6)  strcat(envoi,"6");
+            else if (valeur == 3)  strcat(envoi,"3");
+            else if (valeur == 4)  strcat(envoi,"4");
+            else if (valeur == 5)  strcat(envoi,"5");
+            else if (valeur == 6)  strcat(envoi,"6");
             
             strcat(envoi,", \"couleur\":");
             strcat(envoi,"1");
             strcat(envoi,"},\n");
             count++;
         }
-        if(FEM[j] == 'C') { 
+        else if(FEM[j] == 'C') { 
             valeur = 5;
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
@@ -477,10 +494,10 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             if (bR == j) valeur = valeur + 1;
             strcat(envoi,"\t{\"nb\":");
             if (valeur == 3)  strcat(envoi,"3");
-            if (valeur == 4)  strcat(envoi,"4");
-            if (valeur == 5)  strcat(envoi,"5");
-            if (valeur == 6)  strcat(envoi,"6");
-            if (valeur == 7)  strcat(envoi,"7");
+            else if (valeur == 4)  strcat(envoi,"4");
+            else if (valeur == 5)  strcat(envoi,"5");
+            else if (valeur == 6)  strcat(envoi,"6");
+            else if (valeur == 7)  strcat(envoi,"7");
             
             strcat(envoi,", \"couleur\":");
             strcat(envoi,"1");
@@ -489,27 +506,63 @@ char analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
         }
 
         //Pour vérifier le nombre de case vide 
-        if((FEM[j] >= '1' && FEM[j] <= '9' )){
-            nb = nb*10 + (FEM[j]-'0');
+        else if(FEM[j] >= '1' && FEM[j] <= '9' ){
+            
+            if (FEM[j+1] >= '1' && FEM[j+1] <= '9'){
+                #ifdef __DEBUG__
+                fprintf(stdout, " \n %s \n", "test 2 nombre");
+                #endif
+                nb = (FEM[j] - '0')*10 + (FEM[j+1] - '0');
+                j++; count = count + nb;                                //augmentation du compteur de case (count) et du passeur au suivant (j)
+                for(i=0;i<nb;i++) {
+                    #ifdef __DEBUG__
+                    fprintf(stdout, " \n %s \n", "Ligne envoyer !");
+                    #endif
+                    strcat(envoi,"\t{\"nb\":0, \"couleur\":0},\n");
+
+                }
+            }
+            else {
+                #ifdef __DEBUG__
+                fprintf(stdout, " \n %s \n", "test 1 nombre");
+                #endif
+
+                nb = FEM[j] - '0';
+                count = count + nb;
+
+                for(i=0;i<nb;i++) {
+                    #ifdef __DEBUG__
+                    fprintf(stdout, " \n %s \n", "Ligne envoyer !");
+                    #endif
+                    strcat(envoi,"\t{\"nb\":0, \"couleur\":0},\n");
+                }
+            }
+            
         }
         
         j++;
     }
 
-    #ifdef __DEBUG__
-    fprintf(stdout, " \n count : %d \n", count);
-    #endif
+    //#ifdef __DEBUG__
+    fprintf(stdout, " \ncount : %d \n", count);
+    fprintf(stdout, " \nnb : %d \n", nb);
+    //#endif
 
     //Permet d'avoir toujours 48 cases d'afficher 
-    if (nb > 48) nb = 48 - count;           //si le nombre demandé de case vide est supérieur à 48, on affiche 48 cases vides moin le nombre de case déjà afficher
     if (count == 48) nb = 0;                //si le nombre de case déjà afficher est égale à 48, on affiche 0 case vide
-    if ((nb + count) < 48) nb = 48 - count; //si le nombre de case déjà afficher plus le nombre de case vide demandé est inférieur à 48, on affiche 48 cases vides moin le nombre de case déjà afficher
+    else if (count == 0) nb = 48;                //si le nombre de case déjà afficher est égale à 0, on affiche 48 case vide
+    
+    if (nb > 48) nb = 48 - count;           //si le nombre demandé de case vide est supérieur à 48, on affiche 48 cases vides moin le nombre de case déjà afficher
+    else if (nb > (48 - count)) nb = 48 - count; //si le nombre demandé de case vide est supérieur à au nombre de case vide restant à afficher, on affiche 48 cases vides moins le nombre de case déjà afficher
+    
+    if ((nb + count) < 48) {nb = 48 - count;} //si le nombre de case déjà afficher plus le nombre de case vide demandé est inférieur à 48, on affiche 48 cases vides moin le nombre de case déjà afficher
 
     #ifdef __DEBUG__
     fprintf(stdout, " \n NB : %d \n", nb);
+    strcat(envoi,"\t-----------------------------\n");          ///crée une séparation dans le fichier pour vérifier si le nombre de case est correct
     #endif
 
-    for(i;i<nb;i++) strcat(envoi,"\t{\"nb\":0, \"couleur\":0},\n");         //permet d'affichier toute les casses vides
+    for(i=0;i<nb;i++) strcat(envoi,"\t{\"nb\":0, \"couleur\":0},\n");         //permet d'affichier toute les casses vides
     
     envoi[strlen(envoi)-2] = '\0';                                          //Supprime la dernière virgule        
     strcat(envoi,"\n]\n});\n");                                             //Finalise le document                                                          

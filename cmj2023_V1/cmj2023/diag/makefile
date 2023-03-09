@@ -23,6 +23,7 @@ diag.static:diag.c
 clean: 
 	rm -rf diag.exe diag.static
 	rm -rf ../build/diag.*
+	rm -rf *.js							# Supprime tout les fichiers .js
 
 
 cleanall: clean
