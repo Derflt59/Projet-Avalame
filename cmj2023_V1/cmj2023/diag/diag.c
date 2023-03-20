@@ -73,7 +73,7 @@ int main(int argc, char **argv){
   
                                
     
-    fprintf(stdout, "\n Nom du fichier : %s \n", nom);
+    fprintf(stdout, "\nNom du fichier : %s \n", nom);
     
 
     //Pour l'ajout d'une note ou non
@@ -118,7 +118,7 @@ int main(int argc, char **argv){
     SuppressionIndesirable(FEN);
     
     //#ifdef __DEBUG__
-    fprintf(stdout, " \n%s\n", "Après suppression des caractères indésirable");
+    fprintf(stdout, " \n%s\n", "Après suppression de(s) caractère(s) indésirable(s)");
     fprintf(stdout, " FEN : %s \n", FEN);
     //#endif
     
@@ -133,11 +133,12 @@ int main(int argc, char **argv){
     //Utilisation de modification B/M pour les écrits
     MalusBonnusModifica(FEN, &mJ, &mR, &bJ, &bR, &color);
 
-    //#ifdef __DEBUG__
+    #ifdef __DEBUG__
     fprintf(stdout, " \n%s\n", "Après modification pour les B/M");
     fprintf(stdout, " FEN : %s \n", FEN);
+    #endif    
     fprintf(stdout, "Malus : J : %d, R :%d ; Bonnus : J : %d, R : %d ; Color : %d \n", mJ, mR, bJ, bR, color);
-    //#endif
+
 
     //traite la première partie (celle qui ne fait pas le détaille avec les collonnes)
     FILE *PremierEcrit = fopen(nom, "a+");
@@ -192,7 +193,7 @@ void SuppressionIndesirable(char* FEN){
             }
         }
 
-        else if (FEN[i] != 'u' && FEN[i] != 'd' && FEN[i] != 't' && FEN[i] != 'q' && FEN[i] != 'c' && FEN[i] != 'j' && FEN[i] != 'r' && FEN[i] != 'J' && FEN[i] != 'R' && FEN[i] != ' ' && FEN[i] != 'M' && FEN[i] != 'B' && FEN[i] != 'm' && FEN[i] != 'B'){               //Si le caractère n'est pas une lettre autorisée
+        else if (FEN[i] != 'u' && FEN[i] != 'd' && FEN[i] != 't' && FEN[i] != 'q' && FEN[i] != 'c' && FEN[i] != 'U' && FEN[i] != 'D' && FEN[i] != 'T' && FEN[i] != 'Q' && FEN[i] != 'C' && FEN[i] != 'j' && FEN[i] != 'r' && FEN[i] != 'J' && FEN[i] != 'R' && FEN[i] != ' ' && FEN[i] != 'M' && FEN[i] != 'B' && FEN[i] != 'm' && FEN[i] != 'b'){               //Si le caractère n'est pas une lettre autorisée
             for(j=i;j<(strlen(FEN));j++){                                                           //On supprime le caractère 
                 FEN[j]=FEN[j+1];
             }
@@ -213,6 +214,7 @@ Returne : la chaine FEN modiffier : sans les indications bonus / maluse ; ainsi 
 void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
     int i=0, j, IndBR=0, IndMR=0,IndBJ=0, IndMJ=0,len; 
     int nbBM; //nombre de bonus/malus pour chaque lettre
+    int modif; //vérifie si il y a eu modification 
 
     #ifdef __DEBUG__
     fprintf(stdout, " %s \n", "During make");
@@ -221,8 +223,10 @@ void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
 
     while((FEN[i]!='r') && (FEN[i]!='j') && (FEN[i]!='R') && (FEN[i]!='J') && (FEN[i]!= '\0') && (i <= strlen(FEN)+1)){
         #ifdef __DEBUG__
-        fprintf(stdout,"%d ;",i);
+        fprintf(stdout,"\n i = %d ",i);
         #endif
+
+        modif = 0; //initialise la variable modif à 0
 
         if(i==0 && (FEN[i] == 'B' || FEN[i] == 'M' || FEN[i] == 'b' || FEN[i] == 'm')){     //si le premier caractère est un bonus ou malus et donc le supprime car ne set à rien
             
@@ -241,41 +245,46 @@ void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
             fprintf(stdout, " %d : ", i);                   //affiche la position de la lettre
             fprintf(stdout, " %c \t", FEN[i]);              //affiche la lettre
             #endif
-            
+
+
             if(FEN[i] == 'B' && ( FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C')){
                 if(IndBR==0) {
                     nbBM = 0; 
+                    #ifdef ___DEBUG___ 
+                    fprintf(stdout,"%s","test B");
+                    #endif
+
                     if(FEN[i-1] != 'u') { //si le bonnus n'est pas un bonnus la bonne couleur
                         
                         if(FEN[i-1] == 'U' && IndMR==0){*bR = i-1;IndBR=1;}
 
                         else if(FEN[i-1] == 'D' || FEN[i-1] == 'd'){
-                            if(mR == (i-1)) {nbBM++;}
-                            if(mJ == (i-1)) {nbBM++;}
-                            if(bJ == (i-1)) {nbBM++;}
+                            if(*mR == (i-1)) {nbBM++;}
+                            if(*mJ == (i-1)) {nbBM++;}
+                            if(*bJ == (i-1)) {nbBM++;}
 
                             if(nbBM <= 1) {*bR = i-1; IndBR=1;}       //vérifie si le nombre de bonus/malus est inférieur à la valeur de la lettre
                         }
                         else if(FEN[i-1] == 'T' || FEN[i-1] == 't'){
-                            if(mR == (i-1)) {nbBM++;}
-                            if(mJ == (i-1)) {nbBM++;}
-                            if(bJ == (i-1)) {nbBM++;}
+                            if(*mR == (i-1)) {nbBM++;}
+                            if(*mJ == (i-1)) {nbBM++;}
+                            if(*bJ == (i-1)) {nbBM++;}
 
                             if(nbBM <= 2) {*bR = i-1; IndBR=1;}       //vérifie si le nombre de bonus/malus est inférieur à la valeur de la lettre
 
                         }
                         else if(FEN[i-1] == 'C' || FEN[i-1] == 'c'){
-                            if(mR == (i-1)) {nbBM++;}
-                            if(mJ == (i-1)) {nbBM++;}
-                            if(bJ == (i-1)) {nbBM++;}
+                            if(*mR == (i-1)) {nbBM++;}
+                            if(*mJ == (i-1)) {nbBM++;}
+                            if(*bJ == (i-1)) {nbBM++;}
 
                             if(nbBM <= 3) {*bR = i-1; IndBR=1;}      //vérifie si le nombre de bonus/malus est inférieur à la valeur de la lettre
 
                         }
                         else if(FEN[i-1] == 'Q' || FEN[i-1] == 'q'){
-                            if(mR == (i-1)) {nbBM++;}
-                            if(mJ == (i-1)) {nbBM++;}
-                            if(bJ == (i-1)) {nbBM++;}
+                            if(*mR == (i-1)) {nbBM++;}
+                            if(*mJ == (i-1)) {nbBM++;}
+                            if(*bJ == (i-1)) {nbBM++;}
 
                             if(nbBM <= 3) {*bR = i-1; IndBR=1;}     //vérifie si le nombre de bonus/malus est inférieur à la valeur de la lettre
 
@@ -294,43 +303,47 @@ void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
                 for(j=i;j<(strlen(FEN));j++){
                     FEN[j]=FEN[j+1];
                 }
+                modif = 1;
             } 
 
             else if(FEN[i] == 'M' && ( FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C')){
                 
                 if(IndMR==0) {
                     nbBM = 0; 
+                    #ifdef ___DEBUG___ 
+                    fprintf(stdout,"%s","test M");
+                    #endif
                     if(FEN[i-1] != 'u') { //si le bonnus n'est pas un bonnus la bonne couleur
                         
                         if(FEN[i-1] == 'U' && IndBR==0){*mR = i-1;IndMR=1;}
 
                         else if(FEN[i-1] == 'D' || FEN[i-1] == 'd'){
-                            if(bR == (i-1)) {nbBM++;}
-                            if(mJ == (i-1)) {nbBM++;}
-                            if(bJ == (i-1)) {nbBM++;}
+                            if(*bR == (i-1)) {nbBM++;}
+                            if(*mJ == (i-1)) {nbBM++;}
+                            if(*bJ == (i-1)) {nbBM++;}
 
                             if(nbBM <= 1) {*mR = i-1;IndMR=1;}       //vérifie si le nombre de bonus/malus est inférieur à la valeur de la lettre
                         }
                         else if(FEN[i-1] == 'T' || FEN[i-1] == 't'){
-                            if(bR == (i-1)) {nbBM++;}
-                            if(mJ == (i-1)) {nbBM++;}
-                            if(bJ == (i-1)) {nbBM++;}
+                            if(*bR == (i-1)) {nbBM++;}
+                            if(*mJ == (i-1)) {nbBM++;}
+                            if(*bJ == (i-1)) {nbBM++;}
 
                             if(nbBM <= 2) {*mR = i-1;IndMR=1;}       //vérifie si le nombre de bonus/malus est inférieur à la valeur de la lettre
 
                         }
                         else if(FEN[i-1] == 'C' || FEN[i-1] == 'c'){
-                            if(bR == (i-1)) {nbBM++;}
-                            if(mJ == (i-1)) {nbBM++;}
-                            if(bJ == (i-1)) {nbBM++;}
+                            if(*bR == (i-1)) {nbBM++;}
+                            if(*mJ == (i-1)) {nbBM++;}
+                            if(*bJ == (i-1)) {nbBM++;}
 
                             if(nbBM <= 3) {*mR = i-1;IndMR=1;}      //vérifie si le nombre de bonus/malus est inférieur à la valeur de la lettre
 
                         }
                         else if(FEN[i-1] == 'Q' || FEN[i-1] == 'q'){
-                            if(bR == (i-1)) {nbBM++;}
-                            if(mJ == (i-1)) {nbBM++;}
-                            if(bJ == (i-1)) {nbBM++;}
+                            if(*bR == (i-1)) {nbBM++;}
+                            if(*mJ == (i-1)) {nbBM++;}
+                            if(*bJ == (i-1)) {nbBM++;}
 
                             if(nbBM <= 3) {*mR = i-1;IndMR=1;}     //vérifie si le nombre de bonus/malus est inférieur à la valeur de la lettre
 
@@ -348,43 +361,47 @@ void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
                 for(j=i;j<(strlen(FEN));j++){       //supprime le malus rouge de la chaine FEN
                     FEN[j]=FEN[j+1];
                 }
+                modif = 1;
             } 
 
             else if(FEN[i] == 'b' && (FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C')){
                 
                 if(IndBJ==0) {
                     nbBM = 0; 
+                    #ifdef ___DEBUG___ 
+                    fprintf(stdout,"%s","test b");
+                    #endif
                     if(FEN[i-1] != 'U') { //si le bonnus n'est pas un bonnus la bonne couleur
                         
                         if(FEN[i-1] == 'u' && IndMJ==0){*bJ = i-1;IndBJ=1;}
 
                         else if(FEN[i-1] == 'D' || FEN[i-1] == 'd'){
-                            if(bR == (i-1)) {nbBM++;}
-                            if(mJ == (i-1)) {nbBM++;}
-                            if(mR == (i-1)) {nbBM++;}
+                            if(*bR == (i-1)) {nbBM++;}
+                            if(*mJ == (i-1)) {nbBM++;}
+                            if(*mR == (i-1)) {nbBM++;}
 
                             if(nbBM <= 1) {*bJ = i-1;IndBJ=1;}       //vérifie si le nombre de bonus/malus est inférieur à la valeur de la lettre
                         }
                         else if(FEN[i-1] == 'T' || FEN[i-1] == 't'){
-                            if(bR == (i-1)) {nbBM++;}
-                            if(mJ == (i-1)) {nbBM++;}
-                            if(mR == (i-1)) {nbBM++;}
+                            if(*bR == (i-1)) {nbBM++;}
+                            if(*mJ == (i-1)) {nbBM++;}
+                            if(*mR == (i-1)) {nbBM++;}
 
                             if(nbBM <= 2) {*bJ = i-1;IndBJ=1;}       //vérifie si le nombre de bonus/malus est inférieur à la valeur de la lettre
 
                         }
                         else if(FEN[i-1] == 'C' || FEN[i-1] == 'c'){
-                            if(bR == (i-1)) {nbBM++;}
-                            if(mJ == (i-1)) {nbBM++;}
-                            if(mR == (i-1)) {nbBM++;}
+                            if(*bR == (i-1)) {nbBM++;}
+                            if(*mJ == (i-1)) {nbBM++;}
+                            if(*mR == (i-1)) {nbBM++;}
 
                             if(nbBM <= 3) {*bJ = i-1;IndBJ=1;}      //vérifie si le nombre de bonus/malus est inférieur à la valeur de la lettre
 
                         }
                         else if(FEN[i-1] == 'Q' || FEN[i-1] == 'q'){
-                            if(bR == (i-1)) {nbBM++;}
-                            if(mJ == (i-1)) {nbBM++;}
-                            if(mR == (i-1)) {nbBM++;}
+                            if(*bR == (i-1)) {nbBM++;}
+                            if(*mJ == (i-1)) {nbBM++;}
+                            if(*mR == (i-1)) {nbBM++;}
 
                             if(nbBM <= 3) {*bJ = i-1;IndBJ=1;}     //vérifie si le nombre de bonus/malus est inférieur à la valeur de la lettre
 
@@ -399,48 +416,55 @@ void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
                 fprintf(stdout,"%s","Bonnus jaune -->");
                 fprintf(stdout,"%d \n",*bJ);
                 #endif
+
                 for(j=i;j<(strlen(FEN));j++){
                     FEN[j]=FEN[j+1];
                 }
+                modif = 1;
             } 
 
             else if(FEN[i] == 'm' && (FEN[i-1] == 'u'|| FEN[i-1] == 'd'|| FEN[i-1] == 't'|| FEN[i-1] == 'q'|| FEN[i-1] == 'c'|| FEN[i-1] == 'U'|| FEN[i-1] == 'D'|| FEN[i-1] == 'T'|| FEN[i-1] == 'Q'|| FEN[i-1] == 'C')){
                 
                 if(IndMJ==0) {
                     nbBM = 0; 
+
+                    #ifdef ___DEBUG___ 
+                    fprintf(stdout,"%s","test m");
+                    #endif
+
                     if(FEN[i-1] != 'U') { //si le bonnus n'est pas un bonnus la bonne couleur
                         
                         if(FEN[i-1] == 'u' && IndBJ==0){*mJ = i-1;IndMJ=1;}
 
                         else if(FEN[i-1] == 'D' || FEN[i-1] == 'd'){
-                            if(bR == (i-1)) {nbBM++;}
-                            if(bJ == (i-1)) {nbBM++;}
-                            if(mR == (i-1)) {nbBM++;}
+                            if(*bR == (i-1)) {nbBM++;}
+                            if(*bJ == (i-1)) {nbBM++;}
+                            if(*mR == (i-1)) {nbBM++;}
 
                             if(nbBM <= 1) {*mJ = i-1;IndMJ=1;}       //vérifie si le nombre de bonus/malus est inférieur à la valeur de la lettre
                         }
                         else if(FEN[i-1] == 'T' || FEN[i-1] == 't'){
-                            if(bR == (i-1)) {nbBM++;}
-                            if(bJ == (i-1)) {nbBM++;}
-                            if(mR == (i-1)) {nbBM++;}
+                            if(*bR == (i-1)) {nbBM++;}
+                            if(*bJ == (i-1)) {nbBM++;}
+                            if(*mR == (i-1)) {nbBM++;}
 
-                            if(nbBM <= 1) {*mJ = i-1;IndMJ=1;}       //vérifie si le nombre de bonus/malus est inférieur à la valeur de la lettre
+                            if(nbBM <= 2) {*mJ = i-1;IndMJ=1;}       //vérifie si le nombre de bonus/malus est inférieur à la valeur de la lettre
 
                         }
                         else if(FEN[i-1] == 'C' || FEN[i-1] == 'c'){
-                            if(bR == (i-1)) {nbBM++;}
-                            if(bJ == (i-1)) {nbBM++;}
-                            if(mR == (i-1)) {nbBM++;}
+                            if(*bR == (i-1)) {nbBM++;}
+                            if(*bJ == (i-1)) {nbBM++;}
+                            if(*mR == (i-1)) {nbBM++;}
 
-                            if(nbBM <= 1) {*mJ = i-1;IndMJ=1;}       //vérifie si le nombre de bonus/malus est inférieur à la valeur de la lettre
+                            if(nbBM <= 3) {*mJ = i-1;IndMJ=1;}       //vérifie si le nombre de bonus/malus est inférieur à la valeur de la lettre
 
                         }
                         else if(FEN[i-1] == 'Q' || FEN[i-1] == 'q'){
-                            if(bR == (i-1)) {nbBM++;}
-                            if(bJ == (i-1)) {nbBM++;}
-                            if(mR == (i-1)) {nbBM++;}
+                            if(*bR == (i-1)) {nbBM++;}
+                            if(*bJ == (i-1)) {nbBM++;}
+                            if(*mR == (i-1)) {nbBM++;}
 
-                            if(nbBM <= 1) {*mJ = i-1;IndMJ=1;}       //vérifie si le nombre de bonus/malus est inférieur à la valeur de la lettre
+                            if(nbBM <= 3) {*mJ = i-1;IndMJ=1;}       //vérifie si le nombre de bonus/malus est inférieur à la valeur de la lettre
 
                         }
                         
@@ -448,22 +472,30 @@ void MalusBonnusModifica(char* FEN,int* mJ,int* mR,int* bJ,int* bR, int* color){
                     } //prend uniquement le premier emplacement du bonnus rouge
                
                 }
+                    
 
                 #ifdef __DEBUG__
                 fprintf(stdout,"%s","Malus jaune -->");
                 fprintf(stdout,"%d \n",*mJ);
                 #endif
+
                 for(j=i;j<(strlen(FEN));j++){
-                    FEN[j]=FEN[j+1];
+                        FEN[j]=FEN[j+1];
                 }
+                modif = 1;
             } 
         }
+
+        
     
         #ifdef __DEBUG__
         fprintf(stdout, "Chaine FEN : %s\n", FEN);          //Pour afficher la chaine FEN et voir les changements ou non
         #endif
 
-        i++;
+        if (modif == 0){
+            i++;
+        }
+
     }
     #ifdef __DEBUG__
     fprintf(stdout, " \n FEN : %s \n", FEN);
@@ -716,10 +748,10 @@ void analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
         j++;
     }
 
-    //#ifdef __DEBUG__
+    #ifdef __DEBUG__
     fprintf(stdout, " \ncount : %d \n", count);
     fprintf(stdout, " \nnb : %d \n", nb);
-    //#endif
+    #endif
 
     //Permet d'avoir toujours 48 cases d'afficher 
     if (count == 48) nb = 0;                //si le nombre de case déjà afficher est égale à 48, on affiche 0 case vide
