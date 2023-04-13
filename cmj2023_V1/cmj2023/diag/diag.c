@@ -527,11 +527,12 @@ void analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
         //Pour la couleur rouge 
         if(FEM[j] == 'u') {
             valeur = 1;
+            /*
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
-
+            */
             strcat(envoi,"\t{\"nb\":");
             if (valeur == -1)  strcat(envoi,"-1");
             else if (valeur == 0)  strcat(envoi,"0");
@@ -546,10 +547,12 @@ void analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
         }
         else if(FEM[j] == 'd') {
             valeur = 2;
+            /*
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
+            */
             strcat(envoi,"\t{\"nb\":");
             if (valeur == 0)  strcat(envoi,"0");
             else if (valeur == 1)  strcat(envoi,"1");
@@ -564,10 +567,12 @@ void analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
         }
         else if(FEM[j] == 't') {
             valeur = 3;
+            /*
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
+            */
             strcat(envoi,"\t{\"nb\":");
             if (valeur == 1)  strcat(envoi,"1");
             else if (valeur == 2)  strcat(envoi,"2");
@@ -582,10 +587,12 @@ void analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
         }
         else if(FEM[j] == 'q') {
             valeur = 4;
+            /*
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
+            */
             strcat(envoi,"\t{\"nb\":");
             if (valeur == 2)  strcat(envoi,"2");
             else if (valeur == 3)  strcat(envoi,"3");
@@ -600,10 +607,12 @@ void analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
         }
         else if(FEM[j] == 'c') { 
             valeur = 5;
+            /*
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
+            */
             strcat(envoi,"\t{\"nb\":");
             if (valeur == 3)  strcat(envoi,"3");
             else if (valeur == 4)  strcat(envoi,"4");
@@ -620,11 +629,12 @@ void analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
         //Pour la couleur jaoune
         else if(FEM[j] == 'U') {
             valeur = 1;
+            /*
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
-
+            */
             strcat(envoi,"\t{\"nb\":");
             if (valeur == -1)  strcat(envoi,"-1");
             else if (valeur == 0)  strcat(envoi,"0");
@@ -639,11 +649,13 @@ void analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
         }
         else if(FEM[j] == 'D') {
             valeur = 2;
+            /*
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
             strcat(envoi,"\t{\"nb\":");
+            */
             if (valeur == 0)  strcat(envoi,"0");
             else if (valeur == 1)  strcat(envoi,"1");
             else if (valeur == 2)  strcat(envoi,"2");
@@ -657,11 +669,14 @@ void analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
         }
         else if(FEM[j] == 'T') {
             valeur = 3;
+            /*
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
             strcat(envoi,"\t{\"nb\":");
+            */
+
             if (valeur == 1)  strcat(envoi,"1");
             else if (valeur == 2)  strcat(envoi,"2");
             else if (valeur == 3)  strcat(envoi,"3");
@@ -675,11 +690,13 @@ void analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
         }
         else if(FEM[j] == 'Q') {
             valeur = 4;
+            /*
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
             strcat(envoi,"\t{\"nb\":");
+            */
             if (valeur == 2)  strcat(envoi,"2");
             else if (valeur == 3)  strcat(envoi,"3");
             else if (valeur == 4)  strcat(envoi,"4");
@@ -693,11 +710,13 @@ void analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
         }
         else if(FEM[j] == 'C') { 
             valeur = 5;
+            /*
             if (mJ == j) valeur = valeur - 1;
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
             strcat(envoi,"\t{\"nb\":");
+            */
             if (valeur == 3)  strcat(envoi,"3");
             else if (valeur == 4)  strcat(envoi,"4");
             else if (valeur == 5)  strcat(envoi,"5");
