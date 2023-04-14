@@ -74,6 +74,14 @@ int main(int argc, char **argv){
                                
     
     fprintf(stdout, "\nNom du fichier : %s \n", nom);
+
+    //Si le nom n'est pas valide on renvoie une erreur 
+    FILE *Validation = fopen(nom, "a+");
+    if (Validation == NULL) {
+        fprintf(stderr, "Erreur dans l'exécution de %s : le nom du fichier n'est pas valide\n",argv[0]);
+        return 1;
+    }
+    fclose(Validation);
     
 
     //Pour l'ajout d'une note ou non
@@ -117,10 +125,10 @@ int main(int argc, char **argv){
     //Suppression des caractères indésirable
     SuppressionIndesirable(FEN);
     
-    //#ifdef __DEBUG__
+    #ifdef __DEBUG__
     fprintf(stdout, " \n%s\n", "Après suppression de(s) caractère(s) indésirable(s)");
     fprintf(stdout, " FEN : %s \n", FEN);
-    //#endif
+    #endif
     
     for(i=0 ; i<strlen(FEN)+1 ;i++){       //recopy la chaine FEN dans une autre pour l'affichage
         FEN_copy[i]=FEN[i];
@@ -654,8 +662,9 @@ void analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
-            strcat(envoi,"\t{\"nb\":");
             */
+           strcat(envoi,"\t{\"nb\":");
+            
             if (valeur == 0)  strcat(envoi,"0");
             else if (valeur == 1)  strcat(envoi,"1");
             else if (valeur == 2)  strcat(envoi,"2");
@@ -674,8 +683,9 @@ void analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
-            strcat(envoi,"\t{\"nb\":");
             */
+            strcat(envoi,"\t{\"nb\":");
+            
 
             if (valeur == 1)  strcat(envoi,"1");
             else if (valeur == 2)  strcat(envoi,"2");
@@ -695,8 +705,9 @@ void analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
-            strcat(envoi,"\t{\"nb\":");
             */
+           strcat(envoi,"\t{\"nb\":");
+            
             if (valeur == 2)  strcat(envoi,"2");
             else if (valeur == 3)  strcat(envoi,"3");
             else if (valeur == 4)  strcat(envoi,"4");
@@ -715,8 +726,9 @@ void analyse(char* FEM, int mJ,int mR,int bJ,int bR, char envoi[8000]){
             if (mR == j) valeur = valeur - 1;
             if (bJ == j) valeur = valeur + 1;
             if (bR == j) valeur = valeur + 1;
-            strcat(envoi,"\t{\"nb\":");
             */
+           strcat(envoi,"\t{\"nb\":");
+            
             if (valeur == 3)  strcat(envoi,"3");
             else if (valeur == 4)  strcat(envoi,"4");
             else if (valeur == 5)  strcat(envoi,"5");
